@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Events — Azox — Trial by Fate</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+  <!-- Top bar -->
+  <div class="topbar">
+    <span>Season III:</span>
+    <span class="pill">Always-on PvP</span>
+    <span class="pill">Hard Mode</span>
+    <span class="pill">No Safe Retreat</span>
+  </div>
+
+  <!-- Main nav -->
+  <header class="nav">
+    <div class="nav-inner">
+      <div class="brand">
+        <div class="crest" aria-hidden="true"></div>
+        <div>AZOX</div>
+      </div>
+      <nav class="links" aria-label="Primary">
+        <a href="../index.html">Home</a>
+        <a href="../news/">News</a>
+        <a href="#" style="color: var(--crimson);">Events</a>
+        <a href="../map/">Map</a>
+        <a href="#trials">FAQ</a>
+        <a href="../contact/">Contact</a>
+        <a href="../rules/">Rules</a>
+        <a href="../tools/">Tools</a>
+      </nav>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a href="../play-now/index.html" class="cta">Play Now</a>
+    </div>
+    <!-- Mobile menu -->
+    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
+      <a href="../index.html">Home</a>
+      <a href="../news/">News</a>
+      <a href="#" style="color: var(--crimson);">Events</a>
+      <a href="../map/">Map</a>
+      <a href="#trials">FAQ</a>
+      <a href="../contact/">Contact</a>
+      <a href="../rules/">Rules</a>
+      <a href="../tools/">Tools</a>
+    </nav>
+  </header>
+
+  <!-- Events Section -->
+  <main class="news-container">
+    <div class="news-header">
+      <div class="eyebrow"><span class="dot"></span>Upcoming Events</div>
+      <h1 class="news-title">Server Events</h1>
+      <p class="news-subtitle">Join exciting tournaments, competitions, and special events happening on the Azox Network.</p>
+    </div>
+
+    <div class="news-grid" id="eventsGrid">
+      <div class="loading">Loading events...</div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>&copy; 2025 Azox Network</p>
+    </div>
+  </footer>
+
+  <script>
+    // Events data (embedded to avoid CORS issues with local files)
+    const eventsData = [
+      {
+        filename: '2025-11-09-1-first.md',
+        date: 'November 9, 2025',
+        title: 'Season III Championship Tournament Announced',
+        category: 'Tournament',
+        content: `The **Azox Network** is proud to announce our biggest tournament yet! The Season III Championship will test the mettle of our most skilled warriors in the ultimate Trial by Fate.
+
+## Tournament Details
+
+**When:** November 15-17, 2025
+**Where:** Main PvP Arena (Coordinates: 0, 100, 0)
+**Prize Pool:** 50,000 Azox Coins + Exclusive Champion Gear
+
+### Tournament Format
+
+* **Day 1 (Nov 15):** Qualifying Rounds - Open to all players
+* **Day 2 (Nov 16):** Semi-Finals - Top 32 survivors advance
+* **Day 3 (Nov 17):** Finals - Ultimate showdown for the championship
+
+### Rules & Requirements
+
+* Minimum gear score of 750 to participate
+* No retreat allowed once combat begins
+* Standard PvP rules apply - no exploits or cheating
+* All participants must be registered by November 14th
+
+## How to Register
+
+Visit the **Tournament Hall** in the main hub or use the command \`/tournament register\` in-game. Registration closes at midnight on November 14th.
+
+**Remember:** In the Trial by Fate, only the strongest survive. Will you claim your destiny?
+
+*Good luck, warriors. May fate favor the bold.*`
+      }
+    ];
+
+    // Simple markdown parser for basic formatting
+    function parseMarkdown(text) {
+      // Split into lines for better processing
+      const lines = text.split('\n');
+      const result = [];
+      let inList = false;
+      
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i];
+        
+        // Skip empty lines
+        if (line.trim() === '') {
+          if (inList) {
+            result.push('</ul>');
+            inList = false;
+          }
+          result.push('');
+          continue;
+        }
+        
+        // Headers
+        if (line.startsWith('### ')) {
+          if (inList) { result.push('</ul>'); inList = false; }
+          result.push(`<h3>${line.substring(4)}</h3>`);
+        } else if (line.startsWith('## ')) {
+          if (inList) { result.push('</ul>'); inList = false; }
+          result.push(`<h2>${line.substring(3)}</h2>`);
+        } else if (line.startsWith('# ')) {
+          if (inList) { result.push('</ul>'); inList = false; }
+          result.push(`<h1>${line.substring(2)}</h1>`);
+        }
+        // List items
+        else if (line.startsWith('* ')) {
+          if (!inList) {
+            result.push('<ul>');
+            inList = true;
+          }
+          result.push(`<li>${line.substring(2)}</li>`);
+        }
+        // Regular paragraphs
+        else {
+          if (inList) { result.push('</ul>'); inList = false; }
+          result.push(`<p>${line}</p>`);
+        }
+      }
+      
+      // Close any open list
+      if (inList) {
+        result.push('</ul>');
+      }
+      
+      return result.join('\n')
+        // Apply inline formatting
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        // Clean up empty paragraphs
+        .replace(/<p><\/p>/g, '')
+        .replace(/<p>\s*<\/p>/g, '');
+    }
+
+    // Load and display events
+    function loadEvents() {
+      const eventsGrid = document.getElementById('eventsGrid');
+      eventsGrid.innerHTML = '';
+
+      eventsData.forEach(event => {
+        const htmlContent = parseMarkdown(event.content);
+
+        const eventElement = document.createElement('article');
+        eventElement.className = 'news-article';
+        eventElement.innerHTML = `
+          <div class="news-meta">
+            <span class="news-date">${event.date}</span>
+            <span class="news-category">${event.category}</span>
+          </div>
+          <h2>${event.title}</h2>
+          <div class="news-content">${htmlContent}</div>
+        `;
+
+        eventsGrid.appendChild(eventElement);
+      });
+    }
+
+    // Load events when page loads
+    document.addEventListener('DOMContentLoaded', loadEvents);
+
+    // Hamburger menu
+    (function(){
+      const hamburger = document.getElementById('hamburger');
+      const mobileMenu = document.getElementById('mobileMenu');
+      if(!hamburger || !mobileMenu) return;
+      
+      hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+      });
+
+      // Close menu when clicking on a link
+      mobileMenu.addEventListener('click', (e) => {
+        if(e.target.tagName === 'A') {
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('active');
+        }
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if(!hamburger.contains(e.target) && !mobileMenu.contains(e.target)) {
+          hamburger.classList.remove('active');
+          mobileMenu.classList.remove('active');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
