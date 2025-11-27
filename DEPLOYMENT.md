@@ -8,7 +8,7 @@
 
 ## 🔧 Quick Fix
 
-### Step 1: Update Database Configuration
+### Option A: If You Have MySQL Root Password
 
 Edit `config/database.php` and update these lines:
 
@@ -19,13 +19,44 @@ define('DB_USER', 'azox_user');        // Change from 'root'
 define('DB_PASS', 'your_secure_password'); // Add your password
 ```
 
-### Step 2: Set Up MySQL Database and User
-
-Run these commands on your Fedora server:
-
+Then run:
 ```bash
 # 1. Connect to MySQL as root
-sudo mysql -u root -p
+mysql -u root -p
+
+# 2. Create database and user (run these in MySQL prompt)
+CREATE DATABASE azox_network CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'azox_user'@'localhost' IDENTIFIED BY 'your_secure_password';
+GRANT ALL PRIVILEGES ON azox_network.* TO 'azox_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+# 3. Import database schema
+mysql -u azox_user -p azox_network < config/database_simple.sql
+```
+
+### Option B: If You Only Have Sudo Access (No Root Password)
+
+**This is common on Fedora servers!** Use the special sudo script:
+
+```bash
+# Run the sudo-compatible fix script
+./fix-database-sudo.sh
+```
+
+This script will:
+- Use `sudo mysql` to access the database (no password needed)
+- Create a dedicated database user
+- Import the schema automatically
+- Update your configuration
+
+### Manual Sudo Method
+
+If you prefer to do it manually:
+
+```bash
+# 1. Access MySQL via sudo (no password needed)
+sudo mysql
 
 # 2. Create database and user (run these in MySQL prompt)
 CREATE DATABASE azox_network CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -37,11 +68,10 @@ EXIT;
 # 3. Import database schema
 mysql -u azox_user -p azox_network < config/database_simple.sql
 
-# 4. Apply any missing columns (if upgrading)
-mysql -u azox_user -p azox_network < config/add_missing_columns.sql
+# 4. Update config/database.php with the new credentials
 ```
 
-### Step 3: Test Connection
+### Test Connection
 
 ```bash
 # Test the connection
