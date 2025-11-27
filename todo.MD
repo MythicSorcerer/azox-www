@@ -1,0 +1,1 @@
+Chat trash icons vanish

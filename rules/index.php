@@ -7,50 +7,7 @@
   <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-  <!-- Top bar -->
-  <div class="topbar">
-    <span>Season III:</span>
-    <span class="pill">Always-on PvP</span>
-    <span class="pill">Hard Mode</span>
-    <span class="pill">No Safe Retreat</span>
-  </div>
-
-  <!-- Main nav -->
-  <header class="nav">
-    <div class="nav-inner">
-      <div class="brand">
-        <div class="crest" aria-hidden="true"></div>
-        <div>AZOX</div>
-      </div>
-      <nav class="links" aria-label="Primary">
-        <a href="../index.html">Home</a>
-        <a href="../news/">News</a>
-        <a href="../events/">Events</a>
-        <a href="../map/">Map</a>
-        <a href="#trials">FAQ</a>
-        <a href="../contact/">Contact</a>
-        <a href="#" style="color: var(--crimson);">Rules</a>
-        <a href="../tools/">Tools</a>
-      </nav>
-      <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-      <a href="../play-now/index.html" class="cta">Play Now</a>
-    </div>
-    <!-- Mobile menu -->
-    <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-      <a href="../index.html">Home</a>
-      <a href="../news/">News</a>
-      <a href="../events/">Events</a>
-      <a href="../map/">Map</a>
-      <a href="#trials">FAQ</a>
-      <a href="../contact/">Contact</a>
-      <a href="#" style="color: var(--crimson);">Rules</a>
-      <a href="../tools/">Tools</a>
-    </nav>
-  </header>
+  <?php include __DIR__ . '/../includes/nav.php'; ?>
 
   <!-- Rules Section -->
   <main class="news-container">

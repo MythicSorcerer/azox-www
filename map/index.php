@@ -1,0 +1,188 @@
+<?php
+session_start();
+require_once '../config/auth.php';
+?>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Server Map — Azox Network</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .map-container {
+      width: 100%;
+      height: calc(100vh - 200px);
+      min-height: 600px;
+      background: #1a1a1a;
+      border: 2px solid rgba(220, 38, 127, 0.3);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .map-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000;
+    }
+    
+    .map-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      z-index: 10;
+      pointer-events: none;
+    }
+    
+    .map-overlay h2 {
+      color: var(--crimson);
+      margin-bottom: 1rem;
+      font-size: 2rem;
+    }
+    
+    .map-overlay p {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .map-info {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .info-card {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid rgba(220, 38, 127, 0.2);
+    }
+    
+    .info-card h3 {
+      color: var(--crimson);
+      margin-bottom: 1rem;
+    }
+    
+    .info-card ul {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .info-card li {
+      padding: 0.25rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .info-card li:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <?php require_once '../includes/nav.php'; ?>
+
+  <!-- Map Section -->
+  <main class="container">
+    <div class="hero-section">
+      <div class="eyebrow"><span class="dot"></span>Interactive World</div>
+      <h1>Server Map</h1>
+      <p>Explore the Azox Network world with our interactive BlueMap integration. View player locations, faction territories, and points of interest.</p>
+    </div>
+
+    <div class="map-container">
+      <div class="map-overlay">
+        <h2>BlueMap Integration</h2>
+        <p>Interactive server map will be available here</p>
+        <p>Currently configured for Apache2 deployment</p>
+        <p><em>Map data updates every 5 minutes</em></p>
+      </div>
+      <iframe class="map-frame" src="about:blank" title="Server Map"></iframe>
+    </div>
+
+    <div class="map-info">
+      <div class="info-card">
+        <h3>Map Features</h3>
+        <ul>
+          <li><strong>Real-time Updates:</strong> Map refreshes every 5 minutes</li>
+          <li><strong>Player Tracking:</strong> See online players and their locations</li>
+          <li><strong>Faction Territories:</strong> View claimed lands and boundaries</li>
+          <li><strong>Points of Interest:</strong> Important locations and landmarks</li>
+          <li><strong>3D Rendering:</strong> Full 3D world visualization</li>
+          <li><strong>Day/Night Cycle:</strong> Matches server time</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>Navigation Controls</h3>
+        <ul>
+          <li><strong>Mouse Drag:</strong> Pan around the map</li>
+          <li><strong>Mouse Wheel:</strong> Zoom in and out</li>
+          <li><strong>Right Click + Drag:</strong> Rotate view</li>
+          <li><strong>Double Click:</strong> Center on location</li>
+          <li><strong>Layer Toggle:</strong> Switch between surface and caves</li>
+          <li><strong>Search:</strong> Find specific coordinates or players</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>Map Layers</h3>
+        <ul>
+          <li><strong>Surface:</strong> Overworld terrain and structures</li>
+          <li><strong>Caves:</strong> Underground cave systems</li>
+          <li><strong>Nether:</strong> Nether dimension (if enabled)</li>
+          <li><strong>End:</strong> End dimension (if enabled)</li>
+          <li><strong>Faction Claims:</strong> Territory boundaries</li>
+          <li><strong>Waypoints:</strong> Custom markers and locations</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>Technical Info</h3>
+        <ul>
+          <li><strong>Powered by:</strong> BlueMap Plugin</li>
+          <li><strong>Update Frequency:</strong> Every 5 minutes</li>
+          <li><strong>Resolution:</strong> High-quality rendering</li>
+          <li><strong>Performance:</strong> Optimized for web browsers</li>
+          <li><strong>Mobile Support:</strong> Touch-friendly controls</li>
+          <li><strong>Integration:</strong> Apache2 reverse proxy</li>
+        </ul>
+      </div>
+    </div>
+
+    <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 8px; margin: 2rem 0; text-align: center;">
+      <h3 style="color: var(--crimson); margin-bottom: 1rem;">Map Integration Status</h3>
+      <p>The BlueMap integration is configured and ready for deployment. The map will be served through Apache2 reverse proxy configuration, providing seamless access to the interactive world map.</p>
+      <p><strong>Note:</strong> Map functionality requires server deployment with BlueMap plugin installed and configured.</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p>&copy; 2025 Azox Network</p>
+    </div>
+  </footer>
+
+  <script>
+    // Placeholder for future BlueMap integration
+    document.addEventListener('DOMContentLoaded', function() {
+      const mapFrame = document.querySelector('.map-frame');
+      const overlay = document.querySelector('.map-overlay');
+      
+      // In production, this would load the actual BlueMap
+      // For now, we show the placeholder overlay
+      console.log('BlueMap integration ready for deployment');
+      
+      // Example of how the map would be loaded in production:
+      // mapFrame.src = '/bluemap/';
+      // overlay.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
