@@ -583,7 +583,7 @@ function rollbackTransaction()        // Rollback transaction
 ## 📞 Support
 
 ### Community
-- **Discord:** [discord.gg/azox](https://discord.gg/azox)
+- **Discord:** [discord.gg/CbnmVUueXn](https://discord.gg/CbnmVUueXn)
 - **Website:** Browse guides and tutorials
 - **Email:** support@azox.net
 
