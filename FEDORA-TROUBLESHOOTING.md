@@ -33,7 +33,41 @@ sudo systemctl enable mariadb
 
 ---
 
-### Issue 2: Database Connection Error
+### Issue 2: MariaDB Service Startup Failure
+**Error:** "Job for mariadb failed with exit code failed to start"
+
+**Solution:**
+```bash
+# Run comprehensive MariaDB startup fix
+./fix-mariadb-startup.sh
+```
+
+**What this script does:**
+- Diagnoses MariaDB startup issues
+- Checks and fixes permissions
+- Initializes database if needed
+- Fixes SELinux contexts
+- Removes lock files and port conflicts
+- Attempts multiple startup methods
+- Provides detailed error logging
+
+**Manual Diagnosis:**
+```bash
+# Check service status
+sudo systemctl status mariadb
+
+# Check logs for specific errors
+sudo journalctl -u mariadb -n 50
+
+# Common fixes:
+sudo chown -R mysql:mysql /var/lib/mysql
+sudo mysql_install_db --user=mysql --datadir=/var/lib/mysql
+sudo systemctl start mariadb
+```
+
+---
+
+### Issue 3: Database Connection Error
 **Error:** `SQLSTATE[HY000][1045] Access denied for user 'root'@'localhost' (using password: NO)`
 
 **Solution:**
@@ -62,7 +96,7 @@ mysql -u azox_user -p azox_network < config/database_simple.sql
 
 ---
 
-### Issue 3: Apache Not Starting
+### Issue 4: Apache Not Starting
 **Error:** Apache fails to start or serve pages
 
 **Check Status:**
@@ -91,7 +125,7 @@ sudo restorecon -R /var/www/html/
 
 ---
 
-### Issue 4: PHP Not Working
+### Issue 5: PHP Not Working
 **Error:** PHP files download instead of executing
 
 **Fix:**
@@ -109,7 +143,7 @@ curl http://localhost/test.php
 
 ---
 
-### Issue 5: Permission Denied Errors
+### Issue 6: Permission Denied Errors
 **Error:** Various permission denied errors
 
 **Fix File Permissions:**
@@ -130,7 +164,7 @@ sudo restorecon -R /var/www/html/azox/
 
 ---
 
-### Issue 6: SELinux Blocking Connections
+### Issue 7: SELinux Blocking Connections
 **Error:** Database connections fail due to SELinux
 
 **Fix SELinux:**
@@ -150,7 +184,7 @@ sudo setenforce 0
 
 ---
 
-### Issue 7: Firewall Blocking Web Traffic
+### Issue 8: Firewall Blocking Web Traffic
 **Error:** Cannot access website from external IP
 
 **Fix Firewall:**
