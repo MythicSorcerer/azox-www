@@ -161,7 +161,7 @@ azox-www/
 - **MySQL:** Version 5.7 or higher (or MariaDB equivalent)
 - **Modern Browser:** Chrome, Firefox, Safari, Edge
 
-### Installation
+### Quick Installation (Development)
 
 #### 1. Database Setup
 ```bash
@@ -181,27 +181,22 @@ CREATE DATABASE azox_network;
 #### 2. Import Database Schema
 ```bash
 # Import the complete schema
-mysql -u root -p azox_network < config/database.sql
-
-# Apply any updates if needed
-mysql -u root -p azox_network < config/update_messages_table.sql
+mysql -u root -p azox_network < config/database_simple.sql
 ```
 
 #### 3. Configure Database Connection
 Edit `config/database.php` with your database credentials:
 ```php
-$host = 'localhost';
-$dbname = 'azox_network';
-$username = 'your_username';
-$password = 'your_password';
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'azox_network');
+define('DB_USER', 'your_username');
+define('DB_PASS', 'your_password');
 ```
 
 #### 4. Start Development Server
 ```bash
 # Using PHP built-in server
 php -S localhost:8080
-
-# Or configure Apache/Nginx virtual host
 ```
 
 #### 5. Create Admin User
@@ -211,9 +206,27 @@ php -S localhost:8080
 UPDATE users SET role = 'admin' WHERE username = 'your_username';
 ```
 
+### 🐧 Fedora Server Deployment
+
+#### Automated Deployment
+```bash
+# Run the automated deployment script
+./deploy.sh
+```
+
+#### Quick Database Fix
+If you encounter database connection errors:
+```bash
+# Fix database connection issues
+./fix-database.sh
+```
+
+#### Manual Deployment
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for detailed Fedora server setup instructions.
+
 ### Production Deployment
-1. Upload all files to your web server
-2. Configure database connection
+1. Use the production database template: `config/database.production.php`
+2. Create dedicated database user (not root)
 3. Set proper file permissions (755 for directories, 644 for files)
 4. Configure SSL certificate for HTTPS
 5. Set up database backups and monitoring
