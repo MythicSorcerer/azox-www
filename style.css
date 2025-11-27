@@ -1816,11 +1816,17 @@ h1.hero-title{
     padding: 2px 4px;
     border-radius: 3px;
     transition: all 0.2s ease;
+    opacity: 0;
 }
 
 .message-delete-btn:hover {
     color: var(--crimson);
     background: rgba(220,20,60,0.1);
+}
+
+/* Show delete button on message hover - this works with the JavaScript implementation */
+.message:hover .message-delete-btn {
+    opacity: 1;
 }
 
 /* Legacy selectors for backwards compatibility */
@@ -1843,6 +1849,17 @@ h1.hero-title{
 .message:hover button[style*="crimson"],
 .message:hover a[style*="crimson"] {
     opacity: 1;
+}
+
+/* Ensure delete buttons are visible on touch devices */
+@media (hover: none) {
+    .message-delete-btn {
+        opacity: 0.7;
+    }
+    
+    .message-delete-btn:active {
+        opacity: 1;
+    }
 }
 
 /* ===================================

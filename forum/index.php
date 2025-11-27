@@ -106,7 +106,7 @@ $pageTitle = "Forum — Azox — Trial by Fate";
 
         <?php if (isLoggedIn()): ?>
             <div style="text-align: center; margin-top: 32px;">
-                <a href="new-thread.php" class="btn primary">Start New Discussion</a>
+                <a href="/forum/new-thread.php" class="btn primary">Start New Discussion</a>
             </div>
         <?php endif; ?>
 

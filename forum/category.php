@@ -2,78 +2,72 @@
 require_once __DIR__ . '/../config/auth.php';
 
 // Get category ID from URL
-$categoryId = (int)($_GET['id'] ?? 0);
+$categoryId = intval($_GET['id'] ?? 0);
 
 if (!$categoryId) {
-    header("Location: /forum/");
+    header('Location: /forum/');
     exit;
 }
 
-// Get category details
+// Get category information
 $category = fetchRow("
     SELECT * FROM forum_categories 
     WHERE id = ? AND is_active = 1
 ", [$categoryId]);
 
 if (!$category) {
-    header("HTTP/1.1 404 Not Found");
-    die("Category not found");
+    header('Location: /forum/');
+    exit;
 }
 
 // Handle new thread creation
-$error = '';
-$success = '';
-
-if ($_POST && isset($_POST['create_thread']) && isLoggedIn()) {
-    if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn()) {
+    $title = trim($_POST['title'] ?? '');
+    $content = trim($_POST['content'] ?? '');
+    $csrfToken = $_POST['csrf_token'] ?? '';
+    
+    if (!verifyCSRFToken($csrfToken)) {
         $error = 'Invalid security token. Please try again.';
-    } elseif (isBanned()) {
-        $error = 'You are banned from creating threads and posts.';
+    } elseif (empty($title) || empty($content)) {
+        $error = 'Title and content are required.';
+    } elseif (strlen($title) > 255) {
+        $error = 'Title is too long (max 255 characters).';
+    } elseif (strlen($content) > 10000) {
+        $error = 'Content is too long (max 10,000 characters).';
     } else {
-        $title = trim($_POST['title'] ?? '');
-        $content = trim($_POST['content'] ?? '');
-        
-        if (empty($title) || empty($content)) {
-            $error = 'Please fill in both title and content.';
-        } elseif (strlen($title) > 255) {
-            $error = 'Title is too long (maximum 255 characters).';
-        } elseif (strlen($content) > 10000) {
-            $error = 'Content is too long (maximum 10,000 characters).';
-        } else {
-            try {
-                beginTransaction();
-                
-                // Create thread
-                $threadId = insertAndGetId(
-                    "INSERT INTO forum_threads (category_id, title, author_id) VALUES (?, ?, ?)",
-                    [$categoryId, $title, getCurrentUser()['id']]
-                );
-                
-                // Create first post
-                insertAndGetId(
-                    "INSERT INTO forum_posts (thread_id, author_id, content) VALUES (?, ?, ?)",
-                    [$threadId, getCurrentUser()['id'], $content]
-                );
-                
-                commitTransaction();
-                
-                // Redirect to new thread
-                header("Location: /thread/?id=$threadId");
-                exit;
-                
-            } catch (Exception $e) {
-                rollbackTransaction();
-                logActivity("Failed to create thread: " . $e->getMessage(), 'error');
-                $error = 'Failed to create thread. Please try again.';
-            }
+        try {
+            beginTransaction();
+            
+            // Create thread
+            $threadId = insertAndGetId("
+                INSERT INTO forum_threads (category_id, title, author_id) 
+                VALUES (?, ?, ?)
+            ", [$categoryId, $title, getCurrentUser()['id']]);
+            
+            // Create first post
+            insertAndGetId("
+                INSERT INTO forum_posts (thread_id, author_id, content) 
+                VALUES (?, ?, ?)
+            ", [$threadId, getCurrentUser()['id'], $content]);
+            
+            commitTransaction();
+            
+            // Redirect to the new thread
+            header("Location: /thread/?id=$threadId");
+            exit;
+            
+        } catch (Exception $e) {
+            rollbackTransaction();
+            logActivity("Failed to create thread: " . $e->getMessage(), 'error');
+            $error = 'Failed to create thread. Please try again.';
         }
     }
 }
 
-// Get threads with pagination
-$page = max(1, (int)($_GET['page'] ?? 1));
-$threadsPerPage = 20;
-$offset = ($page - 1) * $threadsPerPage;
+// Get threads in this category (only threads with visible posts)
+$page = max(1, intval($_GET['page'] ?? 1));
+$perPage = 20;
+$offset = ($page - 1) * $perPage;
 
 $threads = fetchAll("
     SELECT DISTINCT
@@ -87,21 +81,21 @@ $threads = fetchAll("
     JOIN forum_posts fp ON ft.id = fp.thread_id AND fp.is_deleted = 0
     LEFT JOIN forum_posts lp ON ft.last_post_id = lp.id
     LEFT JOIN users lpu ON lp.author_id = lpu.id
-    WHERE ft.category_id = ?
+    WHERE ft.category_id = ? AND ft.is_deleted = 0
     ORDER BY ft.is_pinned DESC, ft.updated_at DESC
     LIMIT ? OFFSET ?
-", [$categoryId, $threadsPerPage, $offset]);
+", [$categoryId, $perPage, $offset]);
 
-// Get total thread count (only threads with visible posts)
+// Get total thread count for pagination
 $totalThreads = fetchCount("
     SELECT COUNT(DISTINCT ft.id)
     FROM forum_threads ft
     JOIN forum_posts fp ON ft.id = fp.thread_id AND fp.is_deleted = 0
-    WHERE ft.category_id = ?
+    WHERE ft.category_id = ? AND ft.is_deleted = 0
 ", [$categoryId]);
-$totalPages = ceil($totalThreads / $threadsPerPage);
 
-$csrfToken = generateCSRFToken();
+$totalPages = ceil($totalThreads / $perPage);
+
 $pageTitle = sanitizeOutput($category['name']) . " — Forum — Azox";
 ?>
 <!doctype html>
@@ -115,111 +109,69 @@ $pageTitle = sanitizeOutput($category['name']) . " — Forum — Azox";
 <body>
     <?php include __DIR__ . '/../includes/nav.php'; ?>
 
-    <!-- Category Section -->
     <main class="forum-container">
-        <!-- Breadcrumb -->
-        <div style="margin-bottom: 24px;">
-            <nav style="font-size: 14px; color: var(--text-dim);">
-                <a href="/forum/" style="color: var(--text-dim);">Forum</a>
-                <span style="margin: 0 8px;">›</span>
-                <span style="color: var(--text);"><?= sanitizeOutput($category['name']) ?></span>
-            </nav>
-        </div>
-
-        <!-- Category Header -->
         <div class="forum-header">
-            <div class="eyebrow"><span class="dot"></span>Discussion Category</div>
+            <div class="eyebrow">
+                <span class="dot"></span>
+                <a href="/forum/" style="color: var(--text-dim); text-decoration: none;">Forum</a>
+                <span style="color: var(--text-dim); margin: 0 8px;">›</span>
+                <?= sanitizeOutput($category['name']) ?>
+            </div>
             <h1 class="forum-title"><?= sanitizeOutput($category['name']) ?></h1>
             <p class="forum-subtitle"><?= sanitizeOutput($category['description']) ?></p>
+            
+            <?php if (isLoggedIn()): ?>
+                <div style="margin-top: 24px;">
+                    <button onclick="toggleNewThreadForm()" class="btn primary">Start New Thread</button>
+                </div>
+            <?php endif; ?>
         </div>
 
-        <!-- Create Thread Button -->
-        <?php if (isLoggedIn() && !isBanned()): ?>
-            <div style="margin-bottom: 32px; text-align: center;">
-                <button onclick="toggleNewThreadForm()" class="btn primary" id="newThreadBtn">
-                    Start New Thread
-                </button>
+        <?php if (isset($error)): ?>
+            <div class="alert alert-error"><?= sanitizeOutput($error) ?></div>
+        <?php endif; ?>
+
+        <?php if (!isLoggedIn()): ?>
+            <div class="alert alert-info" style="background: rgba(33,150,243,.1); border: 1px solid rgba(33,150,243,.3); color: #64b5f6;">
+                <strong>Join the Discussion!</strong> 
+                <a href="/auth/register.php" style="color: #42a5f5; text-decoration: underline;">Register</a> or 
+                <a href="/auth/login.php" style="color: #42a5f5; text-decoration: underline;">login</a> to create new threads and participate in discussions.
             </div>
+        <?php endif; ?>
 
-            <!-- New Thread Form -->
-            <div id="newThreadForm" style="display: none; margin-bottom: 32px; padding: 24px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px;">
-                <h3 style="margin: 0 0 20px; color: var(--text);">Create New Thread</h3>
-                
-                <?php if ($error): ?>
-                    <div class="alert alert-error" style="margin-bottom: 20px;">
-                        <?= sanitizeOutput($error) ?>
-                    </div>
-                <?php endif; ?>
-
-                <form method="POST" class="auth-form">
-                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
-                    
-                    <div class="form-group">
-                        <label for="title">Thread Title</label>
-                        <input
-                            type="text"
-                            id="title"
-                            name="title"
-                            value="<?= sanitizeOutput($_POST['title'] ?? '') ?>"
-                            required
-                            maxlength="255"
-                            placeholder="Enter a descriptive title for your thread"
-                        >
-                        <small>Maximum 255 characters</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="content">Initial Post</label>
-                        <textarea
-                            id="content"
-                            name="content"
-                            rows="8"
-                            required
-                            maxlength="10000"
-                            placeholder="Write your initial post content here..."
-                            style="resize: vertical; min-height: 120px;"
-                        ><?= sanitizeOutput($_POST['content'] ?? '') ?></textarea>
-                        <small>Maximum 10,000 characters</small>
-                    </div>
-
-                    <div style="display: flex; gap: 12px;">
-                        <button type="submit" name="create_thread" class="btn primary">
-                            Create Thread
-                        </button>
-                        <button type="button" onclick="toggleNewThreadForm()" class="btn ghost">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        <?php elseif (isLoggedIn() && isBanned()): ?>
-            <div style="text-align: center; margin-bottom: 32px; padding: 20px; background: rgba(220,20,60,.1); border: 1px solid rgba(220,20,60,.3); border-radius: 12px;">
-                <p style="margin: 0; color: var(--crimson);">
-                    🚫 You are banned from creating threads and posts.
-                </p>
-            </div>
-        <?php else: ?>
-            <div style="text-align: center; margin-bottom: 32px; padding: 20px; background: rgba(33,150,243,.1); border: 1px solid rgba(33,150,243,.3); border-radius: 12px;">
-                <p style="margin: 0; color: #64b5f6;">
-                    <a href="/auth/login.php" style="color: #42a5f5; text-decoration: underline;">Login</a> or
-                    <a href="/auth/register.php" style="color: #42a5f5; text-decoration: underline;">register</a> to create new threads.
-                </p>
+        <!-- New Thread Form -->
+        <?php if (isLoggedIn()): ?>
+            <div id="newThreadForm" style="display: none; margin-bottom: 32px;">
+                <div style="background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 24px;">
+                    <h3 style="margin: 0 0 20px; color: var(--text);">Create New Thread</h3>
+                    <form method="POST" class="auth-form">
+                        <input type="hidden" name="csrf_token" value="<?= generateCSRFToken() ?>">
+                        
+                        <div class="form-group">
+                            <label for="title">Thread Title</label>
+                            <input type="text" id="title" name="title" required maxlength="255" 
+                                   value="<?= sanitizeOutput($_POST['title'] ?? '') ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content">Content</label>
+                            <textarea id="content" name="content" required rows="8" maxlength="10000"><?= sanitizeOutput($_POST['content'] ?? '') ?></textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px;">
+                            <button type="submit" class="btn primary">Create Thread</button>
+                            <button type="button" onclick="toggleNewThreadForm()" class="btn ghost">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         <?php endif; ?>
 
         <!-- Threads List -->
         <?php if (empty($threads)): ?>
-            <div style="text-align: center; padding: 64px 20px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); border-radius: 12px;">
-                <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
-                <h3 style="margin: 0 0 12px; color: var(--text);">No Threads Yet</h3>
-                <p style="margin: 0; color: var(--text-dim);">
-                    Be the first to start a discussion in this category!
-                </p>
-                <?php if (isLoggedIn()): ?>
-                    <div style="margin-top: 24px;">
-                        <button onclick="toggleNewThreadForm()" class="btn primary">Start First Thread</button>
-                    </div>
-                <?php endif; ?>
+            <div style="text-align: center; padding: 48px; color: var(--text-dim);">
+                <h3>No threads yet</h3>
+                <p>Be the first to start a discussion in this category!</p>
             </div>
         <?php else: ?>
             <div class="forum-threads">
@@ -236,21 +188,23 @@ $pageTitle = sanitizeOutput($category['name']) . " — Forum — Azox";
                                 <?= sanitizeOutput($thread['title']) ?>
                             </h4>
                             <div class="thread-meta">
-                                <span>by <strong><?= sanitizeOutput($thread['author_name']) ?></strong></span>
+                                <span>by <?= sanitizeOutput($thread['author_name']) ?></span>
+                                <?php if ($thread['author_role'] === 'admin'): ?>
+                                    <span style="color: var(--crimson); font-weight: 600;">[Admin]</span>
+                                <?php endif; ?>
                                 <span>•</span>
                                 <span><?= date('M j, Y', strtotime($thread['created_at'])) ?></span>
                                 <?php if ($thread['last_post_time'] && $thread['last_post_author']): ?>
                                     <span>•</span>
-                                    <span>Last reply by <strong><?= sanitizeOutput($thread['last_post_author']) ?></strong></span>
-                                    <span><?= date('M j, g:i A', strtotime($thread['last_post_time'])) ?></span>
+                                    <span>Last: <?= sanitizeOutput($thread['last_post_author']) ?> on <?= date('M j', strtotime($thread['last_post_time'])) ?></span>
                                 <?php endif; ?>
                             </div>
                         </div>
                         <div class="thread-stats">
                             <strong><?= number_format($thread['reply_count']) ?></strong>
-                            <div>replies</div>
+                            <div>Replies</div>
                             <strong><?= number_format($thread['view_count']) ?></strong>
-                            <div>views</div>
+                            <div>Views</div>
                         </div>
                     </a>
                 <?php endforeach; ?>
@@ -258,14 +212,18 @@ $pageTitle = sanitizeOutput($category['name']) . " — Forum — Azox";
 
             <!-- Pagination -->
             <?php if ($totalPages > 1): ?>
-                <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin: 32px 0;">
+                <div style="display: flex; justify-content: center; gap: 8px; margin-top: 32px;">
                     <?php if ($page > 1): ?>
                         <a href="?id=<?= $categoryId ?>&page=<?= $page - 1 ?>" class="btn ghost">← Previous</a>
                     <?php endif; ?>
                     
-                    <span style="color: var(--text-dim);">
-                        Page <?= $page ?> of <?= $totalPages ?>
-                    </span>
+                    <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+                        <?php if ($i === $page): ?>
+                            <span class="btn primary"><?= $i ?></span>
+                        <?php else: ?>
+                            <a href="?id=<?= $categoryId ?>&page=<?= $i ?>" class="btn ghost"><?= $i ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
                     
                     <?php if ($page < $totalPages): ?>
                         <a href="?id=<?= $categoryId ?>&page=<?= $page + 1 ?>" class="btn ghost">Next →</a>
@@ -275,7 +233,6 @@ $pageTitle = sanitizeOutput($category['name']) . " — Forum — Azox";
         <?php endif; ?>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-inner">
             <p>&copy; 2025 Azox Network</p>
@@ -283,25 +240,15 @@ $pageTitle = sanitizeOutput($category['name']) . " — Forum — Azox";
     </footer>
 
     <script>
-        function toggleNewThreadForm() {
-            const form = document.getElementById('newThreadForm');
-            const btn = document.getElementById('newThreadBtn');
-            
-            if (form.style.display === 'none') {
-                form.style.display = 'block';
-                btn.textContent = 'Cancel';
-                document.getElementById('title').focus();
-            } else {
-                form.style.display = 'none';
-                btn.textContent = 'Start New Thread';
-            }
+    function toggleNewThreadForm() {
+        const form = document.getElementById('newThreadForm');
+        if (form.style.display === 'none') {
+            form.style.display = 'block';
+            document.getElementById('title').focus();
+        } else {
+            form.style.display = 'none';
         }
-
-        // Auto-resize textarea
-        document.getElementById('content')?.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = this.scrollHeight + 'px';
-        });
+    }
     </script>
 </body>
 </html>

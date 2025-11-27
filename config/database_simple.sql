@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
+    is_banned BOOLEAN DEFAULT FALSE,
+    banned_at TIMESTAMP NULL,
     INDEX idx_username (username),
     INDEX idx_email (email),
     INDEX idx_last_active (last_active)
@@ -38,6 +40,7 @@ CREATE TABLE IF NOT EXISTS forum_threads (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     is_pinned BOOLEAN DEFAULT FALSE,
     is_locked BOOLEAN DEFAULT FALSE,
+    is_deleted BOOLEAN DEFAULT FALSE,
     view_count INT DEFAULT 0,
     reply_count INT DEFAULT 0,
     last_post_id INT DEFAULT NULL,
@@ -135,3 +138,30 @@ INSERT IGNORE INTO users (username, email, password_hash, role) VALUES
 -- Create test user (password: test123)
 INSERT IGNORE INTO users (username, email, password_hash, role) VALUES
 ('testuser', 'test@azox.net', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user');
+
+-- Add triggers to update thread reply counts
+DELIMITER //
+
+CREATE TRIGGER IF NOT EXISTS update_thread_reply_count_insert
+AFTER INSERT ON forum_posts
+FOR EACH ROW
+BEGIN
+    UPDATE forum_threads
+    SET reply_count = reply_count + 1,
+        last_post_id = NEW.id,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE id = NEW.thread_id;
+END//
+
+CREATE TRIGGER IF NOT EXISTS update_thread_reply_count_delete
+AFTER UPDATE ON forum_posts
+FOR EACH ROW
+BEGIN
+    IF NEW.is_deleted = TRUE AND OLD.is_deleted = FALSE THEN
+        UPDATE forum_threads
+        SET reply_count = reply_count - 1
+        WHERE id = NEW.thread_id;
+    END IF;
+END//
+
+DELIMITER ;
