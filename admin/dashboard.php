@@ -272,11 +272,37 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
                                     <option value="">Select Action</option>
                                     <option value="ban_inactive">Ban Inactive Users</option>
                                     <option value="delete_inactive">Delete Inactive Users</option>
+                                    <option value="delete_date_range">Delete Users by Date Range</option>
                                 </select>
                                 <input type="number" id="bulkUserDays" class="bulk-input" placeholder="Days inactive" min="1" max="365">
                                 <button onclick="bulkUserAction()" class="btn" style="background: #ff6b6b; color: white;">
                                     Execute Action
                                 </button>
+                            </div>
+                            <div id="dateRangeControls" class="bulk-controls" style="display: none; margin-top: 12px;">
+                                <input type="date" id="bulkUserStartDate" class="bulk-input" placeholder="Start date">
+                                <input type="date" id="bulkUserEndDate" class="bulk-input" placeholder="End date">
+                            </div>
+                        </div>
+                        
+                        <!-- Super Admin Section -->
+                        <div class="bulk-action-card" style="border: 2px solid var(--crimson); background: rgba(220,20,60,.05);">
+                            <h5 style="color: var(--crimson);">🔒 Super Admin Operations</h5>
+                            <p style="color: var(--crimson);">Dangerous operations requiring special access code.</p>
+                            <div class="bulk-controls">
+                                <input type="password" id="superAdminCode" class="bulk-input" placeholder="Super Admin Access Code" style="border-color: var(--crimson);">
+                                <select id="superAdminAction" class="bulk-select">
+                                    <option value="">Select Super Admin Action</option>
+                                    <option value="delete_admin">Delete Admin User</option>
+                                    <option value="hard_delete_user">Hard Delete User (Permanent)</option>
+                                    <option value="purge_all_inactive">Purge All Inactive Users</option>
+                                </select>
+                                <button onclick="superAdminAction()" class="btn" style="background: var(--crimson); color: white;">
+                                    Execute Super Admin Action
+                                </button>
+                            </div>
+                            <div id="superAdminTarget" class="bulk-controls" style="display: none; margin-top: 12px;">
+                                <input type="text" id="targetUsername" class="bulk-input" placeholder="Target username" style="border-color: var(--crimson);">
                             </div>
                         </div>
                     </div>
@@ -746,22 +772,100 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
         function bulkUserAction() {
             const action = document.getElementById('bulkUserAction').value;
             const days = document.getElementById('bulkUserDays').value;
+            const startDate = document.getElementById('bulkUserStartDate').value;
+            const endDate = document.getElementById('bulkUserEndDate').value;
             
-            if (!action || !days) {
-                alert('Please select an action and specify the number of days.');
+            if (!action) {
+                alert('Please select an action.');
                 return;
             }
             
-            let message = 'This will ' + (action === 'ban_inactive' ? 'ban' : 'permanently delete') +
-                         ' all users inactive for more than ' + days + ' days.';
-            if (action === 'delete_inactive') {
-                message += ' This action cannot be undone.';
-            }
-            
-            if (confirm(message)) {
-                performBulkAction('bulk_user_action', { action, days });
+            if (action === 'delete_date_range') {
+                if (!startDate || !endDate) {
+                    alert('Please specify both start and end dates for date range deletion.');
+                    return;
+                }
+                
+                let message = 'This will permanently delete all users registered between ' + startDate + ' and ' + endDate + '. This action cannot be undone.';
+                
+                if (confirm(message)) {
+                    performBulkAction('bulk_user_action', { action, startDate, endDate });
+                }
+            } else {
+                if (!days) {
+                    alert('Please specify the number of days.');
+                    return;
+                }
+                
+                let message = 'This will ' + (action === 'ban_inactive' ? 'ban' : 'permanently delete') +
+                             ' all users inactive for more than ' + days + ' days.';
+                if (action === 'delete_inactive') {
+                    message += ' This action cannot be undone.';
+                }
+                
+                if (confirm(message)) {
+                    performBulkAction('bulk_user_action', { action, days });
+                }
             }
         }
+
+        function superAdminAction() {
+            const code = document.getElementById('superAdminCode').value;
+            const action = document.getElementById('superAdminAction').value;
+            const targetUsername = document.getElementById('targetUsername').value;
+            
+            if (!code) {
+                alert('Super Admin access code is required.');
+                return;
+            }
+            
+            if (!action) {
+                alert('Please select a super admin action.');
+                return;
+            }
+            
+            if ((action === 'delete_admin' || action === 'hard_delete_user') && !targetUsername) {
+                alert('Please specify the target username.');
+                return;
+            }
+            
+            let message = '';
+            switch (action) {
+                case 'delete_admin':
+                    message = 'This will permanently delete the admin user "' + targetUsername + '" and all their content. This action cannot be undone and requires super admin access.';
+                    break;
+                case 'hard_delete_user':
+                    message = 'This will permanently delete the user "' + targetUsername + '" and all their content from the database. This action cannot be undone.';
+                    break;
+                case 'purge_all_inactive':
+                    message = 'This will permanently delete ALL inactive users and their content from the database. This action cannot be undone and may affect many users.';
+                    break;
+            }
+            
+            if (confirm(message + '\n\nAre you absolutely sure you want to proceed?')) {
+                performBulkAction('super_admin_action', { code, action, targetUsername });
+            }
+        }
+
+        // Show/hide date range controls based on selected action
+        document.getElementById('bulkUserAction').addEventListener('change', function() {
+            const dateRangeControls = document.getElementById('dateRangeControls');
+            if (this.value === 'delete_date_range') {
+                dateRangeControls.style.display = 'flex';
+            } else {
+                dateRangeControls.style.display = 'none';
+            }
+        });
+
+        // Show/hide target username input based on selected super admin action
+        document.getElementById('superAdminAction').addEventListener('change', function() {
+            const targetControls = document.getElementById('superAdminTarget');
+            if (this.value === 'delete_admin' || this.value === 'hard_delete_user') {
+                targetControls.style.display = 'flex';
+            } else {
+                targetControls.style.display = 'none';
+            }
+        });
 
         function performBulkAction(action, params) {
             const formData = new FormData();

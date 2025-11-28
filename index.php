@@ -17,7 +17,7 @@
           <h1 class="hero-title">Trial by fate</h1>
           <p class="hero-sub">Engage in escalating duels and survival gauntlets where every choice counts—and retreat is not an option.</p>
           <div class="hero-actions">
-          <a class="btn primary" href="play-now/index.html">Join the Server</a>
+          <a class="btn primary" href="play-now/index.php">Join the Server</a>
           <a class="btn ghost" href="#news">News</a>
         </div>
       </div>

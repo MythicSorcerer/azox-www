@@ -76,7 +76,6 @@ Azox Network is a hardcore PvP Minecraft server running **Season III: Trial by F
 
 ```
 azox-www/
-├── index.html                    # Homepage
 ├── index.php                     # PHP homepage with auth
 ├── style.css                     # Main stylesheet (all CSS centralized)
 ├── README.md                     # This documentation
@@ -121,31 +120,26 @@ azox-www/
 │   └── index.php               # FAQ page with collapsible sections
 │
 ├── contact/                     # Contact Information
-│   ├── index.html              # Contact page
 │   ├── index.php               # PHP contact page
 │   └── contact.md              # Contact content
 │
 ├── events/                      # Events System
-│   ├── index.html              # Events page
 │   ├── index.php               # PHP events page
 │   └── *.md                    # Event markdown files
 │
 ├── news/                        # News System
-│   ├── index.html              # News page
 │   ├── index.php               # PHP news page
 │   └── *.md                    # News markdown files
 │
 ├── play-now/                    # Connection Guide
-│   ├── index.html              # Connection guide page
+│   ├── index.php               # PHP connection guide page
 │   └── play-now.md             # Minecraft connection instructions
 │
 ├── rules/                       # Server Rules
-│   ├── index.html              # Rules page
 │   ├── index.php               # PHP rules page
 │   └── rules.md                # Server rules content
 │
 └── tools/                       # Utility Tools
-    ├── index.html              # Tools overview
     ├── index.php               # PHP tools page
     ├── claim/
     │   └── index.html          # Item claiming tool (in development)

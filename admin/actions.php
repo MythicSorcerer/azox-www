@@ -47,7 +47,7 @@ try {
     $id = intval($_POST['id'] ?? 0);
 
     // For bulk operations, we don't need an ID
-    $bulkActions = ['bulk_delete_threads', 'clear_chat_channel', 'bulk_user_action'];
+    $bulkActions = ['bulk_delete_threads', 'clear_chat_channel', 'bulk_user_action', 'super_admin_action'];
     
     if (!$action || (!$id && !in_array($action, $bulkActions))) {
         echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
@@ -78,6 +78,9 @@ try {
             break;
         case 'bulk_user_action':
             bulkUserAction();
+            break;
+        case 'super_admin_action':
+            superAdminAction();
             break;
         default:
             echo json_encode(['success' => false, 'message' => 'Unknown action']);
@@ -299,9 +302,55 @@ function bulkUserAction() {
     try {
         $action = $_POST['action'] ?? '';
         $days = intval($_POST['days'] ?? 0);
+        $startDate = $_POST['startDate'] ?? '';
+        $endDate = $_POST['endDate'] ?? '';
         
-        if (!$action || !$days) {
+        if (!$action) {
             echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
+            return;
+        }
+        
+        if ($action === 'delete_date_range') {
+            if (!$startDate || !$endDate) {
+                echo json_encode(['success' => false, 'message' => 'Start and end dates are required for date range deletion']);
+                return;
+            }
+            
+            // Soft delete users registered between dates (excluding admins)
+            $stmt = $pdo->prepare("
+                UPDATE users
+                SET is_active = 0
+                WHERE created_at BETWEEN ? AND ? AND role != 'admin' AND is_active = 1
+            ");
+            $stmt->execute([$startDate, $endDate . ' 23:59:59']);
+            $affected = $stmt->rowCount();
+            
+            // Also delete their content
+            $pdo->prepare("
+                UPDATE forum_posts SET is_deleted = 1
+                WHERE author_id IN (
+                    SELECT id FROM users
+                    WHERE created_at BETWEEN ? AND ? AND role != 'admin' AND is_active = 0
+                )
+            ")->execute([$startDate, $endDate . ' 23:59:59']);
+            
+            $pdo->prepare("
+                UPDATE messages SET is_deleted = 1
+                WHERE sender_id IN (
+                    SELECT id FROM users
+                    WHERE created_at BETWEEN ? AND ? AND role != 'admin' AND is_active = 0
+                )
+            ")->execute([$startDate, $endDate . ' 23:59:59']);
+            
+            echo json_encode([
+                'success' => true,
+                'message' => "Date range deletion completed: {$affected} users registered between {$startDate} and {$endDate} deleted"
+            ]);
+            return;
+        }
+        
+        if (!$days) {
+            echo json_encode(['success' => false, 'message' => 'Days parameter is required']);
             return;
         }
         
@@ -356,6 +405,130 @@ function bulkUserAction() {
         }
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+}
+
+function superAdminAction() {
+    global $pdo;
+    
+    try {
+        $code = $_POST['code'] ?? '';
+        $action = $_POST['action'] ?? '';
+        $targetUsername = $_POST['targetUsername'] ?? '';
+        
+        // Super admin access code (hardcoded for security)
+        $SUPER_ADMIN_CODE = 'AZOX_SUPER_2025_DELETE_ADMIN';
+        
+        if ($code !== $SUPER_ADMIN_CODE) {
+            echo json_encode(['success' => false, 'message' => 'Invalid super admin access code']);
+            return;
+        }
+        
+        if (!$action) {
+            echo json_encode(['success' => false, 'message' => 'Action is required']);
+            return;
+        }
+        
+        switch ($action) {
+            case 'delete_admin':
+                if (!$targetUsername) {
+                    echo json_encode(['success' => false, 'message' => 'Target username is required']);
+                    return;
+                }
+                
+                // Find the admin user
+                $user = fetchRow("SELECT id, role FROM users WHERE username = ? AND is_active = 1", [$targetUsername]);
+                if (!$user) {
+                    echo json_encode(['success' => false, 'message' => 'Admin user not found']);
+                    return;
+                }
+                
+                if ($user['role'] !== 'admin') {
+                    echo json_encode(['success' => false, 'message' => 'Target user is not an admin']);
+                    return;
+                }
+                
+                // Hard delete admin user and all their content
+                hardDeleteUser($user['id']);
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => "Super admin deletion completed: Admin user '{$targetUsername}' permanently deleted"
+                ]);
+                break;
+                
+            case 'hard_delete_user':
+                if (!$targetUsername) {
+                    echo json_encode(['success' => false, 'message' => 'Target username is required']);
+                    return;
+                }
+                
+                // Find the user
+                $user = fetchRow("SELECT id FROM users WHERE username = ? AND is_active = 1", [$targetUsername]);
+                if (!$user) {
+                    echo json_encode(['success' => false, 'message' => 'User not found']);
+                    return;
+                }
+                
+                // Hard delete user and all their content
+                hardDeleteUser($user['id']);
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => "Hard deletion completed: User '{$targetUsername}' permanently deleted from database"
+                ]);
+                break;
+                
+            case 'purge_all_inactive':
+                // Hard delete all inactive users
+                $inactiveUsers = fetchAll("SELECT id FROM users WHERE is_active = 0");
+                $count = 0;
+                
+                foreach ($inactiveUsers as $user) {
+                    hardDeleteUser($user['id']);
+                    $count++;
+                }
+                
+                echo json_encode([
+                    'success' => true,
+                    'message' => "Purge completed: {$count} inactive users permanently deleted from database"
+                ]);
+                break;
+                
+            default:
+                echo json_encode(['success' => false, 'message' => 'Unknown super admin action']);
+                break;
+        }
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+}
+
+function hardDeleteUser($userId) {
+    global $pdo;
+    
+    try {
+        // Begin transaction for data integrity
+        $pdo->beginTransaction();
+        
+        // Delete all related data first (to avoid foreign key constraints)
+        $pdo->prepare("DELETE FROM notifications WHERE user_id = ?")->execute([$userId]);
+        $pdo->prepare("DELETE FROM user_sessions WHERE user_id = ?")->execute([$userId]);
+        $pdo->prepare("DELETE FROM messages WHERE sender_id = ?")->execute([$userId]);
+        $pdo->prepare("DELETE FROM forum_posts WHERE author_id = ?")->execute([$userId]);
+        $pdo->prepare("DELETE FROM forum_threads WHERE author_id = ?")->execute([$userId]);
+        
+        // Finally, delete the user
+        $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$userId]);
+        
+        // Commit transaction
+        $pdo->commit();
+        
+        return true;
+    } catch (Exception $e) {
+        // Rollback on error
+        $pdo->rollback();
+        throw $e;
     }
 }
 ?>

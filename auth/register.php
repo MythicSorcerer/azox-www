@@ -3,7 +3,7 @@ require_once __DIR__ . '/../config/auth.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
-    header("Location: /index.html");
+    header("Location: /index.php");
     exit;
 }
 
@@ -62,7 +62,7 @@ $csrfToken = generateCSRFToken();
                 <div>AZOX</div>
             </div>
             <nav class="links" aria-label="Primary">
-                <a href="../index.html">Home</a>
+                <a href="../index.php">Home</a>
                 <a href="../news/">News</a>
                 <a href="../events/">Events</a>
                 <a href="../map/">Map</a>
@@ -83,7 +83,7 @@ $csrfToken = generateCSRFToken();
         </div>
         <!-- Mobile menu -->
         <nav class="mobile-menu" id="mobileMenu" aria-label="Mobile navigation">
-            <a href="../index.html">Home</a>
+            <a href="../index.php">Home</a>
             <a href="../news/">News</a>
             <a href="../events/">Events</a>
             <a href="../map/">Map</a>

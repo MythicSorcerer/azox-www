@@ -5,6 +5,6 @@ require_once __DIR__ . '/../config/auth.php';
 logoutUser();
 
 // Redirect to home page
-header("Location: /index.html");
+header("Location: /index.php");
 exit;
 ?>
