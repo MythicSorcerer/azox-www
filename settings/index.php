@@ -305,6 +305,12 @@ $pageTitle = "Account Settings — Azox — Trial by Fate";
             text-transform: uppercase;
         }
 
+        .role-badge.owner {
+            background: rgba(255,215,0,.2);
+            color: #ffd700;
+            border: 1px solid rgba(255,215,0,.3);
+        }
+
         .role-badge.admin {
             background: rgba(220,20,60,.2);
             color: var(--crimson);

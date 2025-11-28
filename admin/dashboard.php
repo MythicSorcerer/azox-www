@@ -290,26 +290,27 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
                             </div>
                         </div>
                         
-                        <!-- Super Admin Section -->
+                        <!-- Owner Only Section -->
+                        <?php if (isOwner()): ?>
                         <div class="bulk-action-card" style="border: 2px solid var(--crimson); background: rgba(220,20,60,.05);">
-                            <h5 style="color: var(--crimson);">🔒 Super Admin Operations</h5>
-                            <p style="color: var(--crimson);">Dangerous operations requiring special access code.</p>
+                            <h5 style="color: var(--crimson);">👑 Owner Operations</h5>
+                            <p style="color: var(--crimson);">Owner-only operations for managing admins and advanced user management.</p>
                             <div class="bulk-controls">
-                                <input type="password" id="superAdminCode" class="bulk-input" placeholder="Super Admin Access Code" style="border-color: var(--crimson);">
-                                <select id="superAdminAction" class="bulk-select">
-                                    <option value="">Select Super Admin Action</option>
-                                    <option value="delete_admin">Delete Admin User</option>
+                                <select id="ownerAction" class="bulk-select">
+                                    <option value="">Select Owner Action</option>
+                                    <option value="delete_admin">Delete Admin/Owner User</option>
                                     <option value="hard_delete_user">Hard Delete User (Permanent)</option>
                                     <option value="purge_all_inactive">Purge All Inactive Users</option>
                                 </select>
-                                <button onclick="superAdminAction()" class="btn" style="background: var(--crimson); color: white;">
-                                    Execute Super Admin Action
+                                <button onclick="ownerAction()" class="btn" style="background: var(--crimson); color: white;">
+                                    Execute Owner Action
                                 </button>
                             </div>
-                            <div id="superAdminTarget" class="bulk-controls" style="display: none; margin-top: 12px;">
+                            <div id="ownerTarget" class="bulk-controls" style="display: none; margin-top: 12px;">
                                 <input type="text" id="targetUsername" class="bulk-input" placeholder="Target username" style="border-color: var(--crimson);">
                             </div>
                         </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -449,6 +450,12 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
+        }
+
+        .role-badge.owner {
+            background: rgba(255,215,0,.2);
+            color: #ffd700;
+            border: 1px solid rgba(255,215,0,.3);
         }
 
         .role-badge.admin {
@@ -814,18 +821,12 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             }
         }
 
-        function superAdminAction() {
-            const code = document.getElementById('superAdminCode').value;
-            const action = document.getElementById('superAdminAction').value;
+        function ownerAction() {
+            const action = document.getElementById('ownerAction').value;
             const targetUsername = document.getElementById('targetUsername').value;
             
-            if (!code) {
-                alert('Super Admin access code is required.');
-                return;
-            }
-            
             if (!action) {
-                alert('Please select a super admin action.');
+                alert('Please select an owner action.');
                 return;
             }
             
@@ -837,7 +838,7 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             let message = '';
             switch (action) {
                 case 'delete_admin':
-                    message = 'This will permanently delete the admin user "' + targetUsername + '" and all their content. This action cannot be undone and requires super admin access.';
+                    message = 'This will permanently delete the admin/owner user "' + targetUsername + '" and all their content. This action cannot be undone and requires owner access.';
                     break;
                 case 'hard_delete_user':
                     message = 'This will permanently delete the user "' + targetUsername + '" and all their content from the database. This action cannot be undone.';
@@ -848,7 +849,7 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             }
             
             if (confirm(message + '\n\nAre you absolutely sure you want to proceed?')) {
-                performBulkAction('super_admin_action', { code, action, targetUsername });
+                performBulkAction('owner_action', { action, targetUsername });
             }
         }
 
@@ -862,15 +863,17 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             }
         });
 
-        // Show/hide target username input based on selected super admin action
-        document.getElementById('superAdminAction').addEventListener('change', function() {
-            const targetControls = document.getElementById('superAdminTarget');
+        // Show/hide target username input based on selected owner action
+        <?php if (isOwner()): ?>
+        document.getElementById('ownerAction').addEventListener('change', function() {
+            const targetControls = document.getElementById('ownerTarget');
             if (this.value === 'delete_admin' || this.value === 'hard_delete_user') {
                 targetControls.style.display = 'flex';
             } else {
                 targetControls.style.display = 'none';
             }
         });
+        <?php endif; ?>
 
         function performBulkAction(action, params) {
             const formData = new FormData();

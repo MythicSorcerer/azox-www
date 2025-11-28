@@ -23,9 +23,9 @@ try {
         exit;
     }
 
-    if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    if (!isset($_SESSION['role']) || ($_SESSION['role'] !== 'admin' && $_SESSION['role'] !== 'owner')) {
         http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Admin access required - not admin role']);
+        echo json_encode(['success' => false, 'message' => 'Admin access required - not admin or owner role']);
         exit;
     }
 
@@ -47,7 +47,7 @@ try {
     $id = intval($_POST['id'] ?? 0);
 
     // For bulk operations, we don't need an ID
-    $bulkActions = ['bulk_delete_threads', 'clear_chat_channel', 'bulk_user_action', 'super_admin_action'];
+    $bulkActions = ['bulk_delete_threads', 'clear_chat_channel', 'bulk_user_action', 'owner_action'];
     
     if (!$action || (!$id && !in_array($action, $bulkActions))) {
         echo json_encode(['success' => false, 'message' => 'Invalid parameters']);
@@ -56,7 +56,7 @@ try {
 
     switch ($action) {
         case 'delete_user':
-            deleteUser($id);
+            deleteUser($id, $currentUser);
             break;
         case 'delete_thread':
             deleteThread($id);
@@ -65,7 +65,7 @@ try {
             deletePost($id);
             break;
         case 'ban_user':
-            banUser($id);
+            banUser($id, $currentUser);
             break;
         case 'unban_user':
             unbanUser($id);
@@ -79,8 +79,8 @@ try {
         case 'bulk_user_action':
             bulkUserAction();
             break;
-        case 'super_admin_action':
-            superAdminAction();
+        case 'owner_action':
+            ownerAction($currentUser);
             break;
         default:
             echo json_encode(['success' => false, 'message' => 'Unknown action']);
@@ -98,19 +98,20 @@ try {
     exit;
 }
 
-function deleteUser($userId) {
+function deleteUser($userId, $currentUser) {
     global $pdo;
     
     try {
-        // Don't allow deleting admin users
+        // Get target user info
         $user = fetchRow("SELECT role FROM users WHERE id = ?", [$userId]);
         if (!$user) {
             echo json_encode(['success' => false, 'message' => 'User not found']);
             return;
         }
         
-        if ($user['role'] === 'admin') {
-            echo json_encode(['success' => false, 'message' => 'Cannot delete admin users']);
+        // Role hierarchy check: only owners can delete admins/owners
+        if (($user['role'] === 'admin' || $user['role'] === 'owner') && $currentUser['role'] !== 'owner') {
+            echo json_encode(['success' => false, 'message' => 'Only owners can delete admin/owner users']);
             return;
         }
         
@@ -169,19 +170,20 @@ function deletePost($postId) {
     }
 }
 
-function banUser($userId) {
+function banUser($userId, $currentUser) {
     global $pdo;
     
     try {
-        // Don't allow banning admin users
+        // Get target user info
         $user = fetchRow("SELECT role FROM users WHERE id = ?", [$userId]);
         if (!$user) {
             echo json_encode(['success' => false, 'message' => 'User not found']);
             return;
         }
         
-        if ($user['role'] === 'admin') {
-            echo json_encode(['success' => false, 'message' => 'Cannot ban admin users']);
+        // Role hierarchy check: only owners can ban admins/owners
+        if (($user['role'] === 'admin' || $user['role'] === 'owner') && $currentUser['role'] !== 'owner') {
+            echo json_encode(['success' => false, 'message' => 'Only owners can ban admin/owner users']);
             return;
         }
         
@@ -408,21 +410,18 @@ function bulkUserAction() {
     }
 }
 
-function superAdminAction() {
+function ownerAction($currentUser) {
     global $pdo;
     
     try {
-        $code = $_POST['code'] ?? '';
-        $action = $_POST['action'] ?? '';
-        $targetUsername = $_POST['targetUsername'] ?? '';
-        
-        // Super admin access code (hardcoded for security)
-        $SUPER_ADMIN_CODE = 'AZOX_SUPER_2025_DELETE_ADMIN';
-        
-        if ($code !== $SUPER_ADMIN_CODE) {
-            echo json_encode(['success' => false, 'message' => 'Invalid super admin access code']);
+        // Only owners can perform these actions
+        if ($currentUser['role'] !== 'owner') {
+            echo json_encode(['success' => false, 'message' => 'Owner access required']);
             return;
         }
+        
+        $action = $_POST['action'] ?? '';
+        $targetUsername = $_POST['targetUsername'] ?? '';
         
         if (!$action) {
             echo json_encode(['success' => false, 'message' => 'Action is required']);
@@ -439,21 +438,21 @@ function superAdminAction() {
                 // Find the admin user
                 $user = fetchRow("SELECT id, role FROM users WHERE username = ? AND is_active = 1", [$targetUsername]);
                 if (!$user) {
-                    echo json_encode(['success' => false, 'message' => 'Admin user not found']);
+                    echo json_encode(['success' => false, 'message' => 'User not found']);
                     return;
                 }
                 
-                if ($user['role'] !== 'admin') {
-                    echo json_encode(['success' => false, 'message' => 'Target user is not an admin']);
+                if ($user['role'] !== 'admin' && $user['role'] !== 'owner') {
+                    echo json_encode(['success' => false, 'message' => 'Target user is not an admin or owner']);
                     return;
                 }
                 
-                // Hard delete admin user and all their content
+                // Hard delete admin/owner user and all their content
                 hardDeleteUser($user['id']);
                 
                 echo json_encode([
                     'success' => true,
-                    'message' => "Super admin deletion completed: Admin user '{$targetUsername}' permanently deleted"
+                    'message' => "Owner deletion completed: {$user['role']} user '{$targetUsername}' permanently deleted"
                 ]);
                 break;
                 
@@ -496,7 +495,7 @@ function superAdminAction() {
                 break;
                 
             default:
-                echo json_encode(['success' => false, 'message' => 'Unknown super admin action']);
+                echo json_encode(['success' => false, 'message' => 'Unknown owner action']);
                 break;
         }
     } catch (Exception $e) {

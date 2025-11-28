@@ -180,7 +180,15 @@ function getCurrentUser() {
  * @return bool True if admin
  */
 function isAdmin() {
-    return isLoggedIn() && $_SESSION['role'] === 'admin';
+    return isLoggedIn() && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'owner');
+}
+
+/**
+ * Check if current user is owner
+ * @return bool True if owner
+ */
+function isOwner() {
+    return isLoggedIn() && $_SESSION['role'] === 'owner';
 }
 
 /**
@@ -244,6 +252,17 @@ function requireAdmin() {
     if (!isAdmin()) {
         header("HTTP/1.1 403 Forbidden");
         die("Access denied. Admin privileges required.");
+    }
+}
+
+/**
+ * Require owner access
+ */
+function requireOwner() {
+    requireLogin();
+    if (!isOwner()) {
+        header("HTTP/1.1 403 Forbidden");
+        die("Access denied. Owner privileges required.");
     }
 }
 
