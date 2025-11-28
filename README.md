@@ -206,23 +206,31 @@ php -S localhost:8080
 UPDATE users SET role = 'admin' WHERE username = 'your_username';
 ```
 
-### 🐧 Fedora Server Deployment
+### 🐧 Production Server Deployment
 
-#### Automated Deployment
+#### ⚡ One-Command Deployment (Recommended)
 ```bash
-# Run the automated deployment script
-./deploy.sh
+# For fresh Fedora/RHEL servers - handles everything automatically
+sudo ./deploy-production.sh
 ```
 
-#### Quick Database Fix
-If you encounter database connection errors:
-```bash
-# Fix database connection issues
-./fix-database.sh
-```
+**What this does:**
+- ✅ Installs all required packages (Apache, MariaDB, PHP)
+- ✅ Configures services, firewall, and SELinux
+- ✅ Sets up database with secure auto-generated password
+- ✅ Copies files with correct permissions
+- ✅ Tests everything and provides clear feedback
 
-#### Manual Deployment
-See [`DEPLOYMENT.md`](DEPLOYMENT.md) for detailed Fedora server setup instructions.
+#### 📋 Quick Deployment Guide
+See [`QUICK-DEPLOY.md`](QUICK-DEPLOY.md) for the streamlined deployment process.
+
+#### 🛠️ Troubleshooting Tools
+- [`fix-mariadb-startup.sh`](fix-mariadb-startup.sh) - Fix MariaDB service startup failures
+- [`fix-database-sudo.sh`](fix-database-sudo.sh) - Set up database with sudo access
+- [`FEDORA-TROUBLESHOOTING.md`](FEDORA-TROUBLESHOOTING.md) - Common deployment issues
+
+#### 📖 Manual Deployment
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) for detailed step-by-step instructions.
 
 ### Production Deployment
 1. Use the production database template: `config/database.production.php`

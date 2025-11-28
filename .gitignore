@@ -48,3 +48,18 @@ temp/
 # Build outputs (if added in future)
 dist/
 build/
+
+# Debug and test files
+test_*.php
+test-*.php
+debug*.php
+cookies.txt
+error.log
+
+# Production database config (contains sensitive passwords)
+config/database.production.php
+
+# Server-specific files
+.htaccess
+robots.txt
+sitemap.xml
