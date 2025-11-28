@@ -4,7 +4,18 @@ require_once __DIR__ . '/../config/auth.php';
 // Require login
 requireLogin();
 
+// Get extended user data including created_at
 $currentUser = getCurrentUser();
+if ($currentUser) {
+    $extendedUser = fetchRow(
+        "SELECT username, email, role, created_at, last_active FROM users WHERE id = ? AND is_active = 1",
+        [$currentUser['id']]
+    );
+    if ($extendedUser) {
+        $currentUser = array_merge($currentUser, $extendedUser);
+    }
+}
+
 $pageTitle = "Account Settings — Azox — Trial by Fate";
 ?>
 <!doctype html>
@@ -57,7 +68,9 @@ $pageTitle = "Account Settings — Azox — Trial by Fate";
                     <div class="setting-item">
                         <label>Member Since</label>
                         <div class="setting-value">
-                            <?= date('F j, Y', strtotime($currentUser['created_at'])) ?>
+                            <?= isset($currentUser['created_at']) && $currentUser['created_at']
+                                ? date('F j, Y', strtotime($currentUser['created_at']))
+                                : 'Unknown' ?>
                         </div>
                     </div>
                 </div>
@@ -78,14 +91,18 @@ $pageTitle = "Account Settings — Azox — Trial by Fate";
                         <label>Last Login</label>
                         <div class="setting-value">
                             <?php
-                            $lastActive = strtotime($currentUser['last_active']);
-                            $now = time();
-                            $diff = $now - $lastActive;
-                            
-                            if ($diff < 300) echo 'Currently active';
-                            elseif ($diff < 3600) echo floor($diff/60) . ' minutes ago';
-                            elseif ($diff < 86400) echo floor($diff/3600) . ' hours ago';
-                            else echo floor($diff/86400) . ' days ago';
+                            if (isset($currentUser['last_active']) && $currentUser['last_active']) {
+                                $lastActive = strtotime($currentUser['last_active']);
+                                $now = time();
+                                $diff = $now - $lastActive;
+                                
+                                if ($diff < 300) echo 'Currently active';
+                                elseif ($diff < 3600) echo floor($diff/60) . ' minutes ago';
+                                elseif ($diff < 86400) echo floor($diff/3600) . ' hours ago';
+                                else echo floor($diff/86400) . ' days ago';
+                            } else {
+                                echo 'Unknown';
+                            }
                             ?>
                         </div>
                     </div>
@@ -96,10 +113,11 @@ $pageTitle = "Account Settings — Azox — Trial by Fate";
             <div class="settings-section danger-zone">
                 <h2>Danger Zone</h2>
                 <div class="settings-card danger-card">
-                    <div class="setting-item">
-                        <div class="danger-content">
-                            <h3>Delete Account</h3>
-                            <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+                    <div class="danger-content">
+                        <h3>Delete Account</h3>
+                        <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+                        <div class="danger-notice">
+                            <strong>⚠️ Warning:</strong> This will permanently remove your account, all forum posts, chat messages, and any other data associated with your account. This action cannot be reversed.
                         </div>
                         <button class="btn danger" onclick="showDeleteAccount()">Delete Account</button>
                     </div>
@@ -314,10 +332,25 @@ $pageTitle = "Account Settings — Azox — Trial by Fate";
         }
 
         .danger-content p {
-            margin: 0;
+            margin: 0 0 16px;
             color: var(--text-dim);
             font-size: 14px;
             line-height: 1.4;
+        }
+
+        .danger-notice {
+            background: rgba(220,20,60,.15);
+            border: 1px solid rgba(220,20,60,.4);
+            border-radius: 6px;
+            padding: 12px;
+            margin: 16px 0;
+            font-size: 13px;
+            line-height: 1.4;
+            color: var(--text-dim);
+        }
+
+        .danger-notice strong {
+            color: var(--crimson);
         }
 
         .btn.danger {
