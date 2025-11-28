@@ -1619,6 +1619,8 @@ h1.hero-title{
 
 .faq-category {
     margin-bottom: 3rem;
+    position: relative;
+    z-index: 1;
 }
 
 .faq-category h2 {
@@ -1630,6 +1632,9 @@ h1.hero-title{
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+    background: var(--bg-0);
 }
 
 .faq-item {
@@ -1639,6 +1644,8 @@ h1.hero-title{
     overflow: hidden;
     background: rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .faq-item:hover {
