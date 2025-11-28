@@ -37,6 +37,11 @@ $pageTitle = "Chat — Azox — Trial by Fate";
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title><?= $pageTitle ?></title>
     <link rel="stylesheet" href="../style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
 </head>
 <body>
     <?php include __DIR__ . '/../includes/nav.php'; ?>
