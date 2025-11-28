@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1); // Display errors on the screen
+ini_set('display_startup_errors', 1); // Display startup errors
+error_reporting(E_ALL); // Report all PHP errors (warnings, notices, etc.)
+
 // Include authentication system
 if (!function_exists('getCurrentUser')) {
     require_once __DIR__ . '/../config/auth.php';
