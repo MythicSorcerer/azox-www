@@ -1,0 +1,93 @@
+/* ===================================
+   RESPONSIVE DESIGN
+   Used by: ALL FILES
+   =================================== */
+@media (max-width: 960px){
+  .hero-inner{
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "content"
+      "ip-card"
+      "blurbs";
+    padding-top: 48px;
+  }
+  .blurb-row{
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 820px){
+  .links{
+    display:none;
+  }
+  
+  .hamburger{
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - 120px);
+  }
+  
+  .chat-sidebar {
+    max-height: 200px;
+  }
+  
+  .online-users {
+    display: none;
+  }
+
+  .faq-container {
+    padding: 1rem 0;
+  }
+  
+  .faq-category h2 {
+    font-size: 1.3rem;
+  }
+  
+  .faq-question {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+  
+  .faq-answer p,
+  .faq-answer ul,
+  .faq-answer ol {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .faq-answer p:first-child {
+    padding-top: 1rem;
+  }
+  
+  .faq-answer p:last-child,
+  .faq-answer ul:last-child,
+  .faq-answer ol:last-child {
+    padding-bottom: 1rem;
+  }
+  
+  .faq-answer ul,
+  .faq-answer ol {
+    padding-left: 2rem;
+  }
+}
+
+@media (max-width: 640px){
+  .blurb-row{
+    margin-top: 20px;
+  }
+  .blurb{
+    padding: 12px;
+    min-height: 80px;
+  }
+
+  .news-article {
+    padding: 20px;
+  }
+}

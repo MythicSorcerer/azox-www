@@ -26,6 +26,10 @@ function parseMarkdown($markdown) {
         
         // Category headers (## )
         if (preg_match('/^## (.+)$/', $line, $matches)) {
+            if ($inQuestion) {
+                $html .= '</div></div>' . "\n"; // Close previous question
+                $inQuestion = false;
+            }
             if ($currentSection) {
                 $html .= '</div>' . "\n"; // Close previous category
             }

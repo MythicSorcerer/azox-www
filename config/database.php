@@ -4,13 +4,16 @@
  * Copy this file to database.php and update with your production settings
  */
 
-// Production Database Configuration - UPDATE THESE VALUES
+// Development Database Configuration - UPDATE FOR PRODUCTION
 define('DB_HOST', 'localhost');           // Your MySQL host
 define('DB_NAME', 'azox_network');        // Database name
-define('DB_USER', 'azox_user');           // MySQL username (NOT root)
-define('DB_PASS', 'ribNed-9gugmo-pejtav'); // MySQL password
+define('DB_USER', 'root');                // MySQL username (root for development)
+define('DB_PASS', '');                    // MySQL password (empty for development)
 define('DB_CHARSET', 'utf8mb4');
 define('DB_PORT', 3306);                  // MySQL port
+
+// Enable development mode
+define('DEVELOPMENT_MODE', true);
 
 // PDO options for security and performance
 $pdo_options = [

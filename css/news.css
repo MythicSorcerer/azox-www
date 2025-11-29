@@ -1,0 +1,126 @@
+/* ===================================
+   NEWS SECTION STYLES
+   Used by: news/index.php, news/index.html
+   =================================== */
+/* News page layout */
+.news-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 20px;
+  display: grid;
+  gap: 24px;
+}
+
+.news-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.news-title {
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: 900;
+  margin: 0 0 16px;
+  text-shadow: 0 8px 30px rgba(0,0,0,.5);
+}
+
+.news-subtitle {
+  font-size: clamp(16px, 2.4vw, 20px);
+  color: var(--text-dim);
+  margin: 0;
+}
+
+/* News grid and articles */
+.news-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.news-article {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.news-article:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* News article metadata */
+.news-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.news-date {
+  background: rgba(220,20,60,.15);
+  color: var(--crimson);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(220,20,60,.3);
+}
+
+.news-category {
+  background: rgba(255,255,255,.08);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+/* News article content */
+.news-article h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.news-content {
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+.news-content h3 {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 20px 0 8px;
+}
+
+.news-content p {
+  margin: 0 0 12px;
+}
+
+.news-content ul {
+  margin: 12px 0;
+  padding-left: 20px;
+}
+
+.news-content li {
+  margin-bottom: 6px;
+}
+
+.news-content strong {
+  color: var(--text);
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-dim);
+}

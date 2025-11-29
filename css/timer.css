@@ -1,0 +1,171 @@
+/* ===================================
+   POMODORO TIMER STYLES
+   Used by: tools/index.html
+   =================================== */
+/* Timer container */
+.timer-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Timer display */
+.timer-display {
+  font-size: 4rem;
+  font-weight: bold;
+  color: var(--crimson);
+  margin: 2rem 0;
+  font-family: 'Courier New', monospace;
+  text-shadow: 0 0 20px rgba(220, 38, 127, 0.3);
+}
+
+/* Timer controls */
+.timer-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.timer-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid var(--crimson);
+  background: transparent;
+  color: var(--crimson);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.timer-btn:hover {
+  background: var(--crimson);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.timer-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.timer-btn:disabled:hover {
+  background: transparent;
+  color: var(--crimson);
+}
+
+/* Timer settings */
+.timer-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+  text-align: left;
+}
+
+.setting-group {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid rgba(220, 38, 127, 0.2);
+}
+
+.setting-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--crimson);
+}
+
+.setting-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.3);
+  color: white;
+  border-radius: 4px;
+}
+
+/* Timer status */
+.timer-status {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+  font-weight: 600;
+}
+
+.status-work {
+  color: var(--crimson);
+}
+
+.status-break {
+  color: #4CAF50;
+}
+
+.status-paused {
+  color: #FF9800;
+}
+
+/* Session counter */
+.session-counter {
+  margin: 1rem 0;
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+/* Progress bar */
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--crimson);
+  transition: width 0.5s ease;
+  border-radius: 4px;
+}
+
+/* Mode selector */
+.mode-selector {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.mode-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  min-width: 80px;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.mode-btn.active {
+  background: var(--crimson);
+  color: white;
+  border-color: var(--crimson);
+}
+
+.mode-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

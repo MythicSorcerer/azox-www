@@ -1,0 +1,30 @@
+/* ===================================
+   CSS VARIABLES & CONFIGURATION
+   =================================== */
+:root {
+  /* Core Color Palette */
+  --bg-0: #121214;        /* Primary background */
+  --bg-1: #1a1c1f;        /* Secondary background */
+  --bg-2: #202225;        /* Tertiary background */
+  --text: #e8eaed;        /* Primary text */
+  --text-dim: #b7bcc2;    /* Secondary text */
+  
+  /* Crimson Accent Colors */
+  --crimson: #DC143C;     /* Primary crimson */
+  --crimson-2: #880000;   /* Dark crimson */
+  --crimson-3: #440000;   /* Darkest crimson */
+  
+  /* Metallic Neutrals */
+  --metal-hi: #d6d7da;    /* Polished steel */
+  --metal-mid: #9aa0a6;   /* Brushed steel */
+  --metal-low: #5f6368;   /* Gunmetal */
+  
+  /* Design System */
+  --radius: 14px;
+  --ring: linear-gradient(145deg, #f2f3f4 0%, #a8adb3 22%, #7c828a 50%, #dadde0 78%, #9ea4ab 100%);
+  
+  /* Shadow System */
+  --shadow-lg: 0 30px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+  --shadow-md: 0 10px 28px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.05);
+  --shadow-sm: 0 6px 16px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.04);
+}

@@ -1,0 +1,64 @@
+/* ===================================
+   CONTAINER STYLES
+   Used by: ALL CONTENT PAGES
+   =================================== */
+/* General container for content pages */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 20px;
+    min-height: calc(100vh - 200px);
+}
+
+.hero-section {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.hero-section h1 {
+    font-size: clamp(32px, 6vw, 56px);
+    font-weight: 900;
+    margin: 0 0 16px;
+    text-shadow: 0 8px 30px rgba(0,0,0,.5);
+}
+
+.hero-section p {
+    font-size: clamp(16px, 2.4vw, 20px);
+    color: var(--text-dim);
+    margin: 0;
+}
+
+/* ===================================
+   HOVER-BASED DELETE BUTTON VISIBILITY
+   Used by: forum/index.php, thread/index.php, messaging/index.php
+   =================================== */
+/* Thread delete button in forum header */
+.forum-header .btn.ghost[style*="crimson"] {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.forum-header:hover .btn.ghost[style*="crimson"] {
+    opacity: 1;
+}
+
+/* Post delete buttons */
+.post-actions .post-action[style*="crimson"] {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.forum-post:hover .post-actions .post-action[style*="crimson"] {
+    opacity: 1;
+}
+
+/* Ensure delete buttons are visible on touch devices */
+@media (hover: none) {
+    .message-delete-btn {
+        opacity: 0.7;
+    }
+    
+    .message-delete-btn:active {
+        opacity: 1;
+    }
+}
