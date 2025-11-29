@@ -4,15 +4,15 @@ The **Azox Network** is proud to announce our biggest tournament yet! The Season
 
 ## Tournament Details
 
-**When:** November 15-17, 2025
+**When:** TBD
 **Where:** Main PvP Arena (Coordinates: 0, 100, 0)
-**Prize Pool:** 50,000 Azox Coins + Exclusive Champion Gear
+**Prize Pool:** 50,000 Azox Coins + Exclusive Champion Gear + TBD
 
 ### Tournament Format
 
-* **Day 1 (Nov 15):** Qualifying Rounds - Open to all players
-* **Day 2 (Nov 16):** Semi-Finals - Top 32 survivors advance
-* **Day 3 (Nov 17):** Finals - Ultimate showdown for the championship
+* **Day 1 (TBD):** Qualifying Rounds - Open to all players
+* **Day 2 (TBD):** Semi-Finals - Top 32 survivors advance
+* **Day 3 (TBD):** Finals - Ultimate showdown for the championship
 
 ### Rules & Requirements
 
@@ -23,7 +23,7 @@ The **Azox Network** is proud to announce our biggest tournament yet! The Season
 
 ## How to Register
 
-Visit the **Tournament Hall** in the main hub or use the command `/tournament register` in-game. Registration closes at midnight on November 14th.
+Visit the **Tournament Hall** in the main hub or use the command `/tournament register` (WIP) in-game. Registration closes at midnight on TBD.
 
 **Remember:** In the Trial by Fate, only the strongest survive. Will you claim your destiny?
 
