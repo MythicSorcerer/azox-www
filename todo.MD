@@ -6,3 +6,8 @@
 ✅ Missing forum files - Created forum/category.php and forum/new-thread.php
 
 # All high priority issues have been resolved!
+
+New problem:
+- Auth/login shows season 3 headers intead of enter button
+- same with auth/register
+- Enter button should be white, not black on black
