@@ -56,9 +56,9 @@ function registerUser($username, $email, $password) {
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     
     try {
-        // Insert new user
+        // Insert new user with explicit 'user' role to prevent privilege escalation
         $userId = insertAndGetId(
-            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+            "INSERT INTO users (username, email, password_hash, role) VALUES (?, ?, ?, 'user')",
             [$username, $email, $passwordHash]
         );
         
