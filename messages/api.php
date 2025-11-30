@@ -89,43 +89,22 @@ function handleGetMessages() {
             return;
         }
         
-        // Check if current user can view these DMs (user is participant or admin)
-        $canView = ($currentUser['username'] === $dmUser) ||
-                   ($currentUser['role'] === 'admin' || $currentUser['role'] === 'owner');
-        
-        if (!$canView) {
-            // Get messages where current user is sender or receiver
-            $messages = fetchAll("
-                SELECT
-                    m.*,
-                    u.username as author_name,
-                    u.role as author_role
-                FROM messages m
-                JOIN users u ON m.sender_id = u.id
-                WHERE m.receiver_id IS NOT NULL
-                AND ((m.sender_id = ? AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = ?))
-                AND m.id > ?
-                AND m.is_deleted = 0
-                ORDER BY m.created_at ASC
-                LIMIT ?
-            ", [$currentUser['id'], $dmUserData['id'], $dmUserData['id'], $currentUser['id'], $after, $limit]);
-        } else {
-            // Admin view - can see all DMs involving this user
-            $messages = fetchAll("
-                SELECT
-                    m.*,
-                    u.username as author_name,
-                    u.role as author_role
-                FROM messages m
-                JOIN users u ON m.sender_id = u.id
-                WHERE m.receiver_id IS NOT NULL
-                AND (m.sender_id = ? OR m.receiver_id = ?)
-                AND m.id > ?
-                AND m.is_deleted = 0
-                ORDER BY m.created_at ASC
-                LIMIT ?
-            ", [$dmUserData['id'], $dmUserData['id'], $after, $limit]);
-        }
+        // Only allow users to view DMs where they are a participant
+        // Admins should use the separate monitoring interface for oversight
+        $messages = fetchAll("
+            SELECT
+                m.*,
+                u.username as author_name,
+                u.role as author_role
+            FROM messages m
+            JOIN users u ON m.sender_id = u.id
+            WHERE m.receiver_id IS NOT NULL
+            AND ((m.sender_id = ? AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = ?))
+            AND m.id > ?
+            AND m.is_deleted = 0
+            ORDER BY m.created_at ASC
+            LIMIT ?
+        ", [$currentUser['id'], $dmUserData['id'], $dmUserData['id'], $currentUser['id'], $after, $limit]);
         
         // Format timestamps for JavaScript
         foreach ($messages as &$message) {

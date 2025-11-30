@@ -134,9 +134,6 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                     <h2>@ <?= sanitizeOutput($dmUser) ?></h2>
                     <div style="font-size: 14px; color: var(--text-dim);">
                         Direct Message
-                        <?php if (isAdmin()): ?>
-                            <span style="color: var(--crimson); margin-left: 8px;">👁️ Admin View</span>
-                        <?php endif; ?>
                     </div>
                 <?php else: ?>
                     <h2># <?= sanitizeOutput($channels[$currentChannel]) ?></h2>

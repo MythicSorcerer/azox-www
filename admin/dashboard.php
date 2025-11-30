@@ -102,6 +102,7 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             <div class="action-buttons">
                 <button onclick="showTab('users')" class="btn primary">Manage Users</button>
                 <button onclick="showTab('threads')" class="btn ghost">Moderate Forum</button>
+                <a href="chat-monitor.php" class="btn ghost">👁️ Monitor Chat</a>
                 <button onclick="showTab('bulk')" class="btn ghost">Bulk Operations</button>
                 <button onclick="alert('System settings coming soon')" class="btn ghost">System Settings</button>
             </div>
