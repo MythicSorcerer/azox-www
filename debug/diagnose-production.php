@@ -31,25 +31,38 @@ echo "📋 Reading database configuration...\n";
 $configContent = file_get_contents($dbConfigFile);
 
 // Extract database credentials from the config file
+// Try production format first
 if (preg_match('/\$dbname = \'([^\']+)\';/', $configContent, $matches)) {
     $dbname = $matches[1];
-    echo "   Database name: $dbname\n";
+    echo "   Database name: $dbname (production format)\n";
+} elseif (preg_match('/define\(\'DB_NAME\', \'([^\']+)\'\);/', $configContent, $matches)) {
+    $dbname = $matches[1];
+    echo "   Database name: $dbname (development format)\n";
 } else {
     echo "❌ Could not extract database name from config\n";
+    echo "   Config format not recognized. Checking content...\n";
+    echo "   First 500 characters:\n";
+    echo "   " . substr($configContent, 0, 500) . "\n";
     exit(1);
 }
 
 if (preg_match('/\$username = \'([^\']+)\';/', $configContent, $matches)) {
     $username = $matches[1];
-    echo "   Database user: $username\n";
+    echo "   Database user: $username (production format)\n";
+} elseif (preg_match('/define\(\'DB_USER\', \'([^\']*)\'\);/', $configContent, $matches)) {
+    $username = $matches[1];
+    echo "   Database user: $username (development format)\n";
 } else {
     echo "❌ Could not extract database username from config\n";
     exit(1);
 }
 
-if (preg_match('/\$password = \'([^\']+)\';/', $configContent, $matches)) {
+if (preg_match('/\$password = \'([^\']*)\';/', $configContent, $matches)) {
     $password = $matches[1];
-    echo "   Database password: [" . strlen($password) . " characters]\n";
+    echo "   Database password: [" . strlen($password) . " characters] (production format)\n";
+} elseif (preg_match('/define\(\'DB_PASS\', \'([^\']*)\'\);/', $configContent, $matches)) {
+    $password = $matches[1];
+    echo "   Database password: [" . strlen($password) . " characters] (development format)\n";
 } else {
     echo "❌ Could not extract database password from config\n";
     exit(1);
