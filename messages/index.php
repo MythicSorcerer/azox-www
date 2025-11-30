@@ -80,10 +80,10 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                 <div class="user-selector">
                     <div class="user-selector-header">
                         <span class="user-selector-title">Message User</span>
-                        <button class="user-selector-toggle" id="userSelectorToggle">
-                            📝 New DM
-                        </button>
                     </div>
+                    <button class="user-selector-toggle" id="userSelectorToggle">
+                        📝 New DM
+                    </button>
                     <div class="user-selector-dropdown" id="userSelectorDropdown">
                         <input type="text" class="user-search" id="userSearch" placeholder="Search users...">
                         <div class="user-dropdown-list" id="userDropdownList">
