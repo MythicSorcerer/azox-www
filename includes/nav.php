@@ -73,7 +73,9 @@ if (!function_exists('getActiveClass')) {
                 <a href="/auth/logout.php" style="color: var(--text-dim); text-decoration: none;">Log out</a>
             <?php else: ?>
                 <!-- Not logged in -->
-                <a href="/auth/login.php" style="background: rgba(0,0,0,.65); color: var(--text); padding: 4px 10px; margin: 2px 0; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); text-decoration: none; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;">Enter</a>
+                <a href="/auth/login.php" style="background: rgba(0,0,0,.65); color: var(--text); padding: 4px 10px; margin: 2px 0; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); text-decoration: none; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;">Login</a>
+                <span style="color: var(--text-dim); margin: 0 8px;">|</span>
+                <a href="/auth/register.php" style="background: rgba(0,0,0,.65); color: var(--text); padding: 4px 10px; margin: 2px 0; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); text-decoration: none; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;">Register</a>
             <?php endif; ?>
         </div>
     </div>
