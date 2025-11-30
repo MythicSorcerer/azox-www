@@ -128,13 +128,13 @@ The Azox Network uses the following role hierarchy:
 
 1. **Owner** (`owner`)
    - Highest level access
-   - Can delete/ban admin and owner accounts
+   - Can manage admin and other owner accounts
    - Can perform all admin functions
-   - Can access owner-only operations
+   - Full system control
 
 2. **Admin** (`admin`)
-   - Can delete/ban regular users only
-   - Cannot delete/ban other admins or owners
+   - Can manage regular users only
+   - Cannot manage other admins or owners
    - Can moderate forums and chat
    - Can access admin dashboard
 
@@ -243,8 +243,8 @@ USE azox_network;
 SELECT username, role, is_active FROM users WHERE role IN ('owner', 'admin');
 
 # 4. Create emergency owner (if no owners exist)
-INSERT INTO users (username, email, password_hash, role, is_active, created_at, last_active) 
-VALUES ('emergency_admin', 'admin@azox.net', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 1, NOW(), NOW());
+INSERT INTO users (username, email, password_hash, role, is_active, created_at, last_active)
+VALUES ('emergency_owner', 'owner@azox.net', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'owner', 1, NOW(), NOW());
 
 # 5. Verify
 SELECT username, role FROM users WHERE role = 'owner';

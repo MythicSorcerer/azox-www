@@ -2,25 +2,33 @@
 
 ## Overview
 
-The Azox Network admin system now includes advanced user management capabilities with both regular admin functions and super admin operations for dangerous actions.
+The Azox Network uses a three-tier role system: **users**, **admins**, and **owners**. This guide covers administrative capabilities and user management features.
 
-## 🔐 Access Levels
+## 🔐 Role System
 
-### Regular Admin
-- Ban/unban users
-- Delete user content (soft delete)
-- Bulk operations on non-admin users
-- Forum and chat moderation
+### User Role (`user`)
+- Default role for all new registrations
+- Can post in forums and chat
+- Can manage their own content
+- Cannot access admin functions
 
-### Super Admin
-- Delete admin users (requires access code)
-- Hard delete users (permanent database removal)
-- Purge all inactive users
-- **Access Code:** `AZOX_SUPER_2025_DELETE_ADMIN`
+### Admin Role (`admin`)
+- Administrative privileges for user management
+- Can ban/unban regular users
+- Can delete user content
+- Can access admin dashboard
+- Cannot ban/delete other admins or owners
 
-## 📋 User Management Features
+### Owner Role (`owner`)
+- Highest level access
+- Can ban/delete admins and other owners
+- Can perform all admin functions
+- Can access owner-only operations
+- Full system control
 
-### Individual User Actions
+## 📋 Admin Features
+
+### Individual User Management
 Access via Admin Dashboard → Recent Users → Actions button
 
 **Available Actions:**
@@ -28,68 +36,68 @@ Access via Admin Dashboard → Recent Users → Actions button
 - **Unban User:** Restores user access
 - **Delete User:** Soft delete (marks as inactive, preserves data)
 
+**Role Restrictions:**
+- Admins can only manage regular users
+- Owners can manage all users including admins
+
 ### Bulk Operations
 Access via Admin Dashboard → Bulk Operations tab
 
-#### Standard Bulk Actions
+#### Standard Operations (Admin & Owner)
 1. **Ban Inactive Users**
    - Bans users inactive for X days
-   - Excludes admin users
+   - Excludes admin/owner users
    - Reversible action
 
 2. **Delete Inactive Users**
    - Soft deletes users inactive for X days
-   - Excludes admin users
+   - Excludes admin/owner users
    - Marks user and content as deleted
 
 3. **Delete Users by Date Range**
    - Deletes users registered between two dates
-   - Excludes admin users
+   - Excludes admin/owner users
    - Useful for removing spam registrations
 
-#### Super Admin Actions
-⚠️ **Requires Access Code:** `AZOX_SUPER_2025_DELETE_ADMIN`
-
+#### Owner-Only Operations
 1. **Delete Admin User**
-   - Permanently removes admin user from database
-   - Requires target username
-   - Cannot be undone
+   - Removes admin user from system
+   - Requires owner privileges
+   - Soft delete preserves data
 
-2. **Hard Delete User**
-   - Permanently removes any user from database
-   - Deletes all related content
-   - Cannot be undone
-
-3. **Purge All Inactive Users**
-   - Permanently removes all inactive users
-   - Mass database cleanup
-   - Cannot be undone
+2. **Manage Admin Roles**
+   - Promote users to admin
+   - Demote admins to users
+   - Owner-only capability
 
 ## 🗄️ Database Operations
 
-### Soft Delete vs Hard Delete
+### Role Hierarchy
+```
+Owner > Admin > User
+```
 
-**Soft Delete (Default):**
+### Soft Delete System
 - Sets `is_active = 0` on users table
 - Sets `is_deleted = 1` on content tables
 - Data remains in database for recovery
-- Used by regular admin functions
-
-**Hard Delete (Super Admin Only):**
-- Permanently removes records from database
-- Deletes all related content (posts, messages, sessions)
-- Cannot be recovered
-- Uses database transactions for integrity
+- Used by all admin functions
 
 ### Manual Database Commands
 
 #### Create Admin User
 ```sql
--- Register user first, then promote
+-- Register user first through website, then promote
 UPDATE users SET role = 'admin' WHERE username = 'your_username';
 ```
 
-#### Manual User Deletion
+#### Create Owner User
+```sql
+-- Register user first through website, then promote
+UPDATE users SET role = 'owner' WHERE username = 'your_username';
+```
+
+#### Manual User Management
 ```sql
 -- Soft delete user and content
 UPDATE users SET is_active = 0 WHERE username = 'username_to_delete';
@@ -97,42 +105,28 @@ UPDATE forum_posts SET is_deleted = 1 WHERE author_id = (SELECT id FROM users WH
 UPDATE messages SET is_deleted = 1 WHERE sender_id = (SELECT id FROM users WHERE username = 'username_to_delete');
 ```
 
-#### Hard Delete User (Permanent)
-```sql
--- Get user ID first
-SET @user_id = (SELECT id FROM users WHERE username = 'username_to_delete');
-
--- Delete all related data
-DELETE FROM notifications WHERE user_id = @user_id;
-DELETE FROM user_sessions WHERE user_id = @user_id;
-DELETE FROM messages WHERE sender_id = @user_id;
-DELETE FROM forum_posts WHERE author_id = @user_id;
-DELETE FROM forum_threads WHERE author_id = @user_id;
-DELETE FROM users WHERE id = @user_id;
-```
-
 #### Bulk Operations
 ```sql
--- Delete users older than date
+-- Delete users older than date (excludes admins/owners)
 UPDATE users SET is_active = 0 
-WHERE created_at < '2025-01-01' AND role != 'admin';
+WHERE created_at < '2025-01-01' AND role = 'user';
 
--- Delete users between dates
+-- Delete users between dates (excludes admins/owners)
 UPDATE users SET is_active = 0 
-WHERE created_at BETWEEN '2025-01-01' AND '2025-01-31' AND role != 'admin';
+WHERE created_at BETWEEN '2025-01-01' AND '2025-01-31' AND role = 'user';
 
--- Ban inactive users
+-- Ban inactive users (excludes admins/owners)
 UPDATE users SET is_banned = 1, banned_at = NOW() 
-WHERE last_active < DATE_SUB(NOW(), INTERVAL 30 DAY) AND role != 'admin';
+WHERE last_active < DATE_SUB(NOW(), INTERVAL 30 DAY) AND role = 'user';
 ```
 
 ## 🔒 Security Features
 
 ### Access Control
-- All admin actions require admin role verification
-- Super admin actions require hardcoded access code
+- Role-based permissions enforced in code
 - Session validation on every request
 - CSRF protection on forms
+- Hierarchical role system prevents privilege escalation
 
 ### Audit Trail
 - All actions logged to activity log
@@ -141,15 +135,15 @@ WHERE last_active < DATE_SUB(NOW(), INTERVAL 30 DAY) AND role != 'admin';
 - JSON responses for clear feedback
 
 ### Protection Mechanisms
-- Admin users cannot be banned by regular admins
-- Super admin code required for admin deletion
+- Admins cannot ban/delete other admins or owners
+- Only owners can manage admin users
+- Bulk operations exclude admin/owner users by default
 - Confirmation dialogs for destructive actions
-- Bulk operations exclude admin users by default
 
 ## 📊 Monitoring & Analytics
 
 ### User Statistics
-- Total active users
+- Total active users by role
 - Online user count
 - Registration trends
 - Activity patterns
@@ -163,10 +157,16 @@ WHERE last_active < DATE_SUB(NOW(), INTERVAL 30 DAY) AND role != 'admin';
 ## 🚨 Emergency Procedures
 
 ### Compromised Admin Account
-1. Change super admin access code in `admin/actions.php`
-2. Use super admin functions to remove compromised admin
-3. Review activity logs for unauthorized actions
+1. Use owner account to ban compromised admin
+2. Review activity logs for unauthorized actions
+3. Create new admin account if needed
 4. Reset all admin passwords
+
+### Lost Owner Access
+1. Access database directly (see MARIADB-RECOVERY.md)
+2. Create emergency owner account
+3. Use emergency account to restore access
+4. Review and secure all accounts
 
 ### Database Recovery
 1. Restore from backup if available
@@ -174,13 +174,13 @@ WHERE last_active < DATE_SUB(NOW(), INTERVAL 30 DAY) AND role != 'admin';
 3. Check activity logs for specific actions taken
 4. Manually restore critical user accounts
 
-### Mass Cleanup
-1. Use "Purge All Inactive Users" for database cleanup
-2. Bulk delete by date range for spam removal
-3. Export user data before major operations
-4. Test operations on staging environment first
-
 ## 📝 Best Practices
+
+### Role Management
+- Keep owner accounts to minimum (1-2 maximum)
+- Create admin accounts for day-to-day moderation
+- Regular users for normal community participation
+- Document role changes and reasons
 
 ### Regular Maintenance
 - Review inactive users monthly
@@ -188,22 +188,53 @@ WHERE last_active < DATE_SUB(NOW(), INTERVAL 30 DAY) AND role != 'admin';
 - Monitor admin activity logs
 - Backup database before bulk operations
 
-### User Management
-- Use soft delete for regular moderation
-- Reserve hard delete for spam/abuse cases
-- Document reasons for admin actions
-- Communicate policy changes to users
-
 ### Security
-- Change super admin code periodically
-- Limit admin account creation
+- Limit owner account creation
 - Monitor failed login attempts
 - Regular security audits
+- Keep admin/owner accounts secure
+
+## 🛠️ Creating Admin/Owner Users
+
+### Method 1: Database Promotion (Recommended)
+```sql
+-- User registers normally first, then promote
+UPDATE users SET role = 'admin' WHERE username = 'new_admin_username';
+UPDATE users SET role = 'owner' WHERE username = 'new_owner_username';
+```
+
+### Method 2: Direct Database Insert
+```sql
+-- Create admin directly (use strong password hash)
+INSERT INTO users (username, email, password_hash, role) VALUES
+('admin_username', 'admin@example.com', '$2y$10$your_password_hash_here', 'admin');
+
+-- Create owner directly (use strong password hash)
+INSERT INTO users (username, email, password_hash, role) VALUES
+('owner_username', 'owner@example.com', '$2y$10$your_password_hash_here', 'owner');
+```
+
+## 📞 Support
+
+### Common Issues
+- **Cannot access admin dashboard:** Check user role in database
+- **Actions not working:** Verify session and role permissions
+- **Cannot ban admin:** Only owners can manage admin users
+
+### Database Queries for Troubleshooting
+```sql
+-- Check user roles
+SELECT username, role, is_active FROM users WHERE role IN ('admin', 'owner');
+
+-- Check recent admin activity
+SELECT username, role, last_active FROM users WHERE role IN ('admin', 'owner') ORDER BY last_active DESC;
+
+-- Count users by role
+SELECT role, COUNT(*) as count FROM users GROUP BY role;
+```
 
 ---
 
-**⚠️ Important:** Super admin operations are irreversible. Always backup your database before performing bulk deletions or hard deletes.
+**⚠️ Important:** Always backup your database before performing bulk operations. The role hierarchy ensures system security - owners have ultimate control, admins handle day-to-day moderation.
 
-**Access Code:** `AZOX_SUPER_2025_DELETE_ADMIN`
-
-*Last Updated: November 28, 2025*
+*Last Updated: November 30, 2025*

@@ -26,7 +26,7 @@ Azox Network is a hardcore PvP Minecraft server running **Season III: Trial by F
 ### 🔐 User Authentication System
 - **Secure Registration:** Password hashing with PHP's `password_hash()`
 - **Session Management:** Secure PHP sessions with activity tracking
-- **Role-Based Access:** User and admin role system
+- **Role-Based Access:** Three-tier role system (user, admin, owner)
 - **Ban System:** Comprehensive user banning with enforcement across all features
 - **Login State Persistence:** Remember user sessions across visits
 
@@ -205,7 +205,7 @@ UPDATE users SET role = 'admin' WHERE username = 'your_username';
 #### ⚡ One-Command Deployment (Recommended)
 ```bash
 # For fresh Fedora/RHEL servers - handles everything automatically
-sudo ./deploy-production.sh
+sudo ./debug/deploy-production.sh
 ```
 
 **What this does:**
@@ -215,13 +215,19 @@ sudo ./deploy-production.sh
 - ✅ Copies files with correct permissions
 - ✅ Tests everything and provides clear feedback
 
-#### 📋 Quick Deployment Guide
-See [`QUICK-DEPLOY.md`](QUICK-DEPLOY.md) for the streamlined deployment process.
+#### 🚨 Troubleshooting Production Issues
 
-#### 🛠️ Troubleshooting Tools
-- [`fix-mariadb-startup.sh`](fix-mariadb-startup.sh) - Fix MariaDB service startup failures
-- [`fix-database-sudo.sh`](fix-database-sudo.sh) - Set up database with sudo access
-- [`FEDORA-TROUBLESHOOTING.md`](FEDORA-TROUBLESHOOTING.md) - Common deployment issues
+**If you see "Service Temporarily Unavailable" after deployment:**
+
+```bash
+# Quick fix (solves 90% of issues)
+sudo ./debug/fix-production-simple.sh
+```
+
+**For detailed troubleshooting:**
+- 📖 **Main Guide**: [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) - Complete troubleshooting workflow
+- 🛠️ **Debug Tools**: [`debug/README.md`](debug/README.md) - Detailed tool documentation
+- 📋 **Quick Deploy**: [`QUICK-DEPLOY.md`](QUICK-DEPLOY.md) - Streamlined deployment process
 
 #### 📖 Manual Deployment
 See [`DEPLOYMENT.md`](DEPLOYMENT.md) for detailed step-by-step instructions.
@@ -244,10 +250,8 @@ CREATE TABLE users (
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role ENUM('user', 'admin') DEFAULT 'user',
+    role ENUM('user', 'admin', 'owner') DEFAULT 'user',
     is_active BOOLEAN DEFAULT TRUE,
-    is_banned BOOLEAN DEFAULT FALSE,
-    banned_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -350,8 +354,10 @@ CREATE TABLE user_sessions (
 function isLoggedIn()           // Check if user is logged in
 function getCurrentUser()       // Get current user data
 function requireLogin()         // Redirect if not logged in
-function isAdmin()             // Check if user has admin role
-function isBanned()            // Check if user is banned
+function isAdmin()             // Check if user has admin or owner role
+function isOwner()             // Check if user has owner role
+function requireAdmin()        // Require admin access
+function requireOwner()        // Require owner access
 function generateCSRFToken()   // Generate CSRF protection token
 function verifyCSRFToken()     // Verify CSRF token
 ```
@@ -391,7 +397,7 @@ function rollbackTransaction()        // Rollback transaction
 - **Content Moderation:** Delete threads, posts, messages
 - **Bulk Actions:** Efficient moderation workflows
 - **Activity Monitoring:** Track user engagement
-- **Role Management:** User/admin role system
+- **Role Management:** Three-tier role system (user/admin/owner)
 
 ## 🎨 Design System
 
