@@ -75,6 +75,23 @@ $pageTitle = "Chat — Azox — Trial by Fate";
             <!-- Direct Messages -->
             <div class="chat-channels">
                 <h3>Direct Messages</h3>
+                
+                <!-- User Selector for Offline Messaging -->
+                <div class="user-selector">
+                    <div class="user-selector-header">
+                        <span class="user-selector-title">Message User</span>
+                        <button class="user-selector-toggle" id="userSelectorToggle">
+                            📝 New DM
+                        </button>
+                    </div>
+                    <div class="user-selector-dropdown" id="userSelectorDropdown">
+                        <input type="text" class="user-search" id="userSearch" placeholder="Search users...">
+                        <div class="user-dropdown-list" id="userDropdownList">
+                            <!-- Users will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="channel-list" id="dmList">
                     <?php if ($dmUser): ?>
                         <a href="?dm=<?= urlencode($dmUser) ?>" class="channel-item active">
@@ -198,11 +215,17 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                 this.lastMessageId = 0;
                 this.typingUsers = new Set();
                 this.typingTimeout = null;
+                this.lastDMCheck = new Date().toISOString();
+                this.allUsers = [];
+                this.filteredUsers = [];
+                this.notificationSound = null;
                 
                 this.initializeElements();
                 this.bindEvents();
                 this.loadMessages();
+                this.loadAllUsers();
                 this.startPolling();
+                this.initializeNotificationSound();
             }
 
             initializeElements() {
@@ -212,6 +235,12 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                 this.sendButton = document.getElementById('sendButton');
                 this.typingIndicator = document.getElementById('typingIndicator');
                 this.typingText = document.getElementById('typingText');
+                
+                // User selector elements
+                this.userSelectorToggle = document.getElementById('userSelectorToggle');
+                this.userSelectorDropdown = document.getElementById('userSelectorDropdown');
+                this.userSearch = document.getElementById('userSearch');
+                this.userDropdownList = document.getElementById('userDropdownList');
             }
 
             bindEvents() {
@@ -236,6 +265,22 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                     
                     // Handle typing indicator
                     this.handleTyping();
+                });
+
+                // User selector events
+                this.userSelectorToggle.addEventListener('click', () => {
+                    this.toggleUserSelector();
+                });
+
+                this.userSearch.addEventListener('input', (e) => {
+                    this.filterUsers(e.target.value);
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.user-selector')) {
+                        this.closeUserSelector();
+                    }
                 });
 
                 // Update user activity
@@ -428,6 +473,13 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                     this.loadMessages();
                 }, 2000);
 
+                // Check for new DMs every 3 seconds (only when not in DM view)
+                setInterval(() => {
+                    if (!this.dmUser) {
+                        this.checkNewDMs();
+                    }
+                }, 3000);
+
                 // Update online users every 30 seconds
                 setInterval(() => {
                     this.updateOnlineUsers();
@@ -544,6 +596,183 @@ $pageTitle = "Chat — Azox — Trial by Fate";
             startDM(username) {
                 if (username === this.currentUser.username) return;
                 window.location.href = `?dm=${encodeURIComponent(username)}`;
+            }
+
+            // New methods for enhanced DM functionality
+
+            async loadAllUsers() {
+                try {
+                    const response = await fetch('api.php?action=get_all_users');
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.allUsers = data.users;
+                        this.filteredUsers = [...this.allUsers];
+                        this.renderUserDropdown();
+                    }
+                } catch (error) {
+                    console.error('Failed to load users:', error);
+                }
+            }
+
+            toggleUserSelector() {
+                const isActive = this.userSelectorDropdown.classList.contains('active');
+                if (isActive) {
+                    this.closeUserSelector();
+                } else {
+                    this.openUserSelector();
+                }
+            }
+
+            openUserSelector() {
+                this.userSelectorDropdown.classList.add('active');
+                this.userSearch.focus();
+                this.loadAllUsers(); // Refresh user list
+            }
+
+            closeUserSelector() {
+                this.userSelectorDropdown.classList.remove('active');
+                this.userSearch.value = '';
+                this.filteredUsers = [...this.allUsers];
+                this.renderUserDropdown();
+            }
+
+            filterUsers(searchTerm) {
+                const term = searchTerm.toLowerCase().trim();
+                this.filteredUsers = this.allUsers.filter(user =>
+                    user.username.toLowerCase().includes(term)
+                );
+                this.renderUserDropdown();
+            }
+
+            renderUserDropdown() {
+                if (!this.userDropdownList) return;
+
+                if (this.filteredUsers.length === 0) {
+                    this.userDropdownList.innerHTML = `
+                        <div class="user-dropdown-empty">
+                            ${this.allUsers.length === 0 ? 'Loading users...' : 'No users found'}
+                        </div>
+                    `;
+                    return;
+                }
+
+                this.userDropdownList.innerHTML = this.filteredUsers.map(user => `
+                    <div class="user-dropdown-item" onclick="azoxChat.selectUser('${this.escapeHtml(user.username)}')">
+                        <div class="user-dropdown-status ${user.is_online ? 'online' : ''}"></div>
+                        <span class="user-dropdown-name ${user.role === 'admin' ? 'admin' : ''}">
+                            ${this.escapeHtml(user.username)}
+                        </span>
+                        <span class="user-dropdown-role">
+                            ${user.is_online ? 'online' : 'offline'}
+                            ${user.role === 'admin' ? ' • admin' : ''}
+                        </span>
+                    </div>
+                `).join('');
+            }
+
+            selectUser(username) {
+                this.closeUserSelector();
+                this.startDM(username);
+            }
+
+            async checkNewDMs() {
+                try {
+                    const response = await fetch(`api.php?action=check_new_dms&last_check=${encodeURIComponent(this.lastDMCheck)}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.new_dms.length > 0) {
+                        data.new_dms.forEach(dm => {
+                            this.showDMNotification(dm);
+                        });
+                        this.lastDMCheck = new Date().toISOString();
+                    }
+                } catch (error) {
+                    console.error('Failed to check for new DMs:', error);
+                }
+            }
+
+            showDMNotification(dm) {
+                // Don't show notification if we're already in DM with this user
+                if (this.dmUser === dm.sender_name) return;
+
+                const notification = document.createElement('div');
+                notification.className = 'dm-notification';
+                notification.onclick = () => {
+                    this.startDM(dm.sender_name);
+                    this.closeDMNotification(notification);
+                };
+
+                const preview = dm.content.length > 50 ? dm.content.substring(0, 50) + '...' : dm.content;
+                
+                notification.innerHTML = `
+                    <button class="dm-notification-close" onclick="event.stopPropagation(); azoxChat.closeDMNotification(this.parentElement)">×</button>
+                    <div class="dm-notification-header">
+                        <span class="dm-notification-icon">💬</span>
+                        <span class="dm-notification-title">New Direct Message</span>
+                    </div>
+                    <div class="dm-notification-sender">
+                        From: ${this.escapeHtml(dm.sender_name)}
+                        ${dm.sender_role === 'admin' ? '<span style="color: var(--crimson); font-size: 10px; margin-left: 4px;">●</span>' : ''}
+                    </div>
+                    <div class="dm-notification-content">
+                        ${this.escapeHtml(preview)}
+                    </div>
+                `;
+
+                document.body.appendChild(notification);
+
+                // Play notification sound
+                this.playNotificationSound();
+
+                // Auto-remove after 8 seconds
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        this.closeDMNotification(notification);
+                    }
+                }, 8000);
+            }
+
+            closeDMNotification(notification) {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }
+
+            initializeNotificationSound() {
+                // Create a simple notification sound using Web Audio API
+                try {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.notificationSound = audioContext;
+                } catch (error) {
+                    console.log('Web Audio API not supported');
+                }
+            }
+
+            playNotificationSound() {
+                if (!this.notificationSound) return;
+
+                try {
+                    const oscillator = this.notificationSound.createOscillator();
+                    const gainNode = this.notificationSound.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(this.notificationSound.destination);
+                    
+                    oscillator.frequency.setValueAtTime(800, this.notificationSound.currentTime);
+                    oscillator.frequency.setValueAtTime(600, this.notificationSound.currentTime + 0.1);
+                    
+                    gainNode.gain.setValueAtTime(0.1, this.notificationSound.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, this.notificationSound.currentTime + 0.2);
+                    
+                    oscillator.start(this.notificationSound.currentTime);
+                    oscillator.stop(this.notificationSound.currentTime + 0.2);
+                } catch (error) {
+                    console.log('Could not play notification sound');
+                }
             }
         }
 

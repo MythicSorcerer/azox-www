@@ -333,3 +333,258 @@
 .message:hover a[style*="crimson"] {
   opacity: 1;
 }
+
+/* ===================================
+   DM NOTIFICATION STYLES
+   =================================== */
+
+/* Notification container */
+.dm-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid var(--crimson);
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 350px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dm-notification:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.dm-notification-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dm-notification-icon {
+  font-size: 16px;
+}
+
+.dm-notification-title {
+  font-weight: 600;
+  color: var(--crimson);
+  font-size: 14px;
+}
+
+.dm-notification-sender {
+  font-weight: 500;
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.dm-notification-content {
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dm-notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.dm-notification-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* ===================================
+   OFFLINE USER MESSAGING STYLES
+   =================================== */
+
+/* User selector dropdown */
+.user-selector {
+  margin-bottom: 16px;
+}
+
+.user-selector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.user-selector-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.user-selector-toggle {
+  background: var(--crimson);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.user-selector-toggle:hover {
+  background: var(--crimson-2);
+}
+
+.user-selector-dropdown {
+  position: relative;
+  display: none;
+}
+
+.user-selector-dropdown.active {
+  display: block;
+}
+
+.user-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.user-search:focus {
+  outline: none;
+  border-color: var(--crimson);
+  box-shadow: 0 0 0 2px rgba(220, 20, 60, 0.1);
+}
+
+.user-dropdown-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.user-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.user-dropdown-item.selected {
+  background: rgba(220, 20, 60, 0.15);
+  color: var(--crimson);
+}
+
+.user-dropdown-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6c757d;
+  flex-shrink: 0;
+}
+
+.user-dropdown-status.online {
+  background: #4CAF50;
+}
+
+.user-dropdown-name {
+  font-size: 13px;
+  flex: 1;
+}
+
+.user-dropdown-name.admin {
+  color: var(--crimson);
+}
+
+.user-dropdown-role {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Empty state */
+.user-dropdown-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dm-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .user-selector-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM Features Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 8px; }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .info { color: #2196F3; }
+        button { padding: 8px 16px; margin: 5px; background: #dc143c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #b91c3c; }
+        .notification-demo { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.95); border: 1px solid #dc143c; border-radius: 8px; padding: 16px; max-width: 350px; }
+        .user-dropdown { background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 6px; max-height: 200px; overflow-y: auto; }
+        .user-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .user-item:hover { background: rgba(255,255,255,0.08); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #4CAF50; }
+        .status-dot.offline { background: #6c757d; }
+    </style>
+</head>
+<body>
+    <h1>Azox Network DM Features Test</h1>
+    
+    <div class="test-section">
+        <h2>✅ Features Implemented</h2>
+        <ul class="success">
+            <li><strong>DM Notification System</strong> - Pop-up notifications for new DMs with sender info and message preview</li>
+            <li><strong>Offline User Messaging</strong> - Dropdown to select any registered user (online or offline)</li>
+            <li><strong>Audio Notifications</strong> - Sound alerts for new DM arrivals</li>
+            <li><strong>Enhanced Polling</strong> - Checks for new DMs every 3 seconds when not in DM view</li>
+            <li><strong>Admin Oversight</strong> - Admins can view all DMs and delete any message</li>
+            <li><strong>User Search</strong> - Filter users in dropdown by username</li>
+            <li><strong>Online Status</strong> - Shows online/offline status in user selector</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔧 API Endpoints Added</h2>
+        <ul class="info">
+            <li><code>GET /messages/api.php?action=get_all_users</code> - Fetch all users for dropdown</li>
+            <li><code>GET /messages/api.php?action=check_new_dms&last_check=...</code> - Check for new DMs</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🎨 UI Components</h2>
+        
+        <h3>Notification Demo</h3>
+        <button onclick="showNotificationDemo()">Show DM Notification</button>
+        
+        <h3>User Selector Demo</h3>
+        <button onclick="toggleUserSelector()">Toggle User Dropdown</button>
+        
+        <div id="userSelectorDemo" style="display: none; margin-top: 10px;">
+            <input type="text" placeholder="Search users..." style="width: 100%; padding: 8px; margin-bottom: 8px; background: rgba(0,0,0,0.3); border: 1px solid #333; color: #fff; border-radius: 4px;">
+            <div class="user-dropdown">
+                <div class="user-item">
+                    <div class="status-dot"></div>
+                    <span>admin_user</span>
+                    <small style="margin-left: auto; color: #999;">online • admin</small>
+                </div>
+                <div class="user-item">
+                    <div class="status-dot"></div>
+                    <span>player1</span>
+                    <small style="margin-left: auto; color: #999;">online</small>
+                </div>
+                <div class="user-item">
+                    <div class="status-dot offline"></div>
+                    <span>player2</span>
+                    <small style="margin-left: auto; color: #999;">offline</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🔒 Admin Features</h2>
+        <ul class="info">
+            <li><strong>DM Oversight</strong> - Admins can view DMs between any users</li>
+            <li><strong>Message Moderation</strong> - Admins can delete any message in DMs or channels</li>
+            <li><strong>User Management</strong> - Full access to user list for messaging</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>📱 How to Test</h2>
+        <ol>
+            <li>Navigate to <code>/messages/</code> in your browser</li>
+            <li>Look for the "📝 New DM" button in the Direct Messages section</li>
+            <li>Click it to see the user dropdown with search functionality</li>
+            <li>Select any user (online or offline) to start a DM</li>
+            <li>Have another user send you a DM to see the notification pop-up</li>
+            <li>Test admin features by logging in as an admin user</li>
+        </ol>
+    </div>
+
+    <script>
+        function showNotificationDemo() {
+            const notification = document.createElement('div');
+            notification.className = 'notification-demo';
+            notification.innerHTML = `
+                <button onclick="this.parentElement.remove()" style="position: absolute; top: 8px; right: 8px; background: none; border: none; color: #999; font-size: 16px;">×</button>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: 16px;">💬</span>
+                    <span style="font-weight: 600; color: #dc143c; font-size: 14px;">New Direct Message</span>
+                </div>
+                <div style="font-weight: 500; color: #fff; font-size: 13px; margin-bottom: 4px;">
+                    From: player1
+                </div>
+                <div style="color: #ccc; font-size: 12px; line-height: 1.4;">
+                    Hey, are you available for a match later?
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.style.animation = 'slideOutRight 0.3s ease-in';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        function toggleUserSelector() {
+            const selector = document.getElementById('userSelectorDemo');
+            selector.style.display = selector.style.display === 'none' ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>

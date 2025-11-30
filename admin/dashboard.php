@@ -156,7 +156,7 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
                                 ?>
                             </div>
                             <div>
-                                <button onclick="showUserActions(<?= $user['id'] ?>, '<?= sanitizeOutput($user['username']) ?>', <?= $user['is_banned'] ? 'true' : 'false' ?>)" class="btn ghost" style="font-size: 12px; padding: 4px 8px;">
+                                <button onclick="showUserActions(<?= $user['id'] ?>, '<?= sanitizeOutput($user['username']) ?>', <?= $user['is_banned'] ? 'true' : 'false' ?>, '<?= $user['role'] ?>')" class="btn ghost" style="font-size: 12px; padding: 4px 8px;">
                                     Actions
                                 </button>
                             </div>
@@ -582,6 +582,8 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             <div class="modal-body">
                 <p id="userModalMessage">Choose an action for this user:</p>
                 <div class="user-actions-buttons">
+                    <button id="promoteUserBtn" class="btn ghost" onclick="promoteUser()" style="background: #4CAF50; color: white;">Promote User</button>
+                    <button id="demoteUserBtn" class="btn ghost" onclick="demoteUser()" style="background: #FF9800; color: white;">Demote User</button>
                     <button id="banUserBtn" class="btn ghost" onclick="banUser()">Ban User</button>
                     <button id="deleteUserBtn" class="btn" style="background: #ff6b6b; color: white;" onclick="deleteUser()">Delete User</button>
                 </div>
@@ -594,6 +596,7 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
         let currentId = null;
         let currentUserId = null;
         let currentUserBanned = false;
+        let currentUserRole = '';
 
         function showTab(tabName) {
             // Hide all tabs
@@ -617,16 +620,35 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             });
         }
 
-        function showUserActions(userId, username, isBanned) {
+        function showUserActions(userId, username, isBanned, userRole) {
             currentUserId = userId;
             currentUserBanned = isBanned;
+            currentUserRole = userRole;
             
             document.getElementById('userModalTitle').textContent = 'Actions for ' + username;
             document.getElementById('userModalMessage').textContent = 'Choose an action for ' + username + ':';
             
-            // Update buttons based on ban status
+            // Update buttons based on ban status and role
+            const promoteBtn = document.getElementById('promoteUserBtn');
+            const demoteBtn = document.getElementById('demoteUserBtn');
             const banBtn = document.getElementById('banUserBtn');
             const deleteBtn = document.getElementById('deleteUserBtn');
+            
+            // Show/hide promote/demote buttons based on role
+            if (currentUserRole === 'owner') {
+                promoteBtn.style.display = 'none';
+                demoteBtn.style.display = 'inline-block';
+                demoteBtn.textContent = 'Demote to Admin';
+            } else if (currentUserRole === 'admin') {
+                promoteBtn.style.display = 'inline-block';
+                promoteBtn.textContent = 'Promote to Owner';
+                demoteBtn.style.display = 'inline-block';
+                demoteBtn.textContent = 'Demote to User';
+            } else { // user
+                promoteBtn.style.display = 'inline-block';
+                promoteBtn.textContent = 'Promote to Admin';
+                demoteBtn.style.display = 'none';
+            }
             
             if (isBanned) {
                 banBtn.textContent = 'Unban User';
@@ -647,6 +669,21 @@ $pageTitle = "Admin Dashboard — Azox — Trial by Fate";
             document.getElementById('userActionsModal').style.display = 'none';
             currentUserId = null;
             currentUserBanned = false;
+            currentUserRole = '';
+        }
+
+        function promoteUser() {
+            if (!currentUserId) return;
+            const roleText = currentUserRole === 'user' ? 'admin' : 'owner';
+            performAction('promote_user', currentUserId, `User will be promoted to ${roleText} role. This will give them elevated privileges.`);
+            closeUserModal();
+        }
+
+        function demoteUser() {
+            if (!currentUserId) return;
+            const roleText = currentUserRole === 'owner' ? 'admin' : 'user';
+            performAction('demote_user', currentUserId, `User will be demoted to ${roleText} role. This will reduce their privileges.`);
+            closeUserModal();
         }
 
         function banUser() {

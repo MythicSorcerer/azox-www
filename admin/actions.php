@@ -82,6 +82,12 @@ try {
         case 'owner_action':
             ownerAction($currentUser);
             break;
+        case 'promote_user':
+            promoteUser($id, $currentUser);
+            break;
+        case 'demote_user':
+            demoteUser($id, $currentUser);
+            break;
         default:
             echo json_encode(['success' => false, 'message' => 'Unknown action']);
             exit;
@@ -528,6 +534,120 @@ function hardDeleteUser($userId) {
         // Rollback on error
         $pdo->rollback();
         throw $e;
+    }
+}
+
+function promoteUser($userId, $currentUser) {
+    global $pdo;
+    
+    try {
+        // Get target user info
+        $user = fetchRow("SELECT username, role FROM users WHERE id = ? AND is_active = 1", [$userId]);
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            return;
+        }
+        
+        // Determine new role based on current role and user permissions
+        $newRole = null;
+        $currentRole = $user['role'];
+        
+        if ($currentRole === 'user') {
+            // Regular users can be promoted to admin by admins or owners
+            if ($currentUser['role'] === 'admin' || $currentUser['role'] === 'owner') {
+                $newRole = 'admin';
+            }
+        } elseif ($currentRole === 'admin') {
+            // Admins can only be promoted to owner by owners
+            if ($currentUser['role'] === 'owner') {
+                $newRole = 'owner';
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Only owners can promote admins to owner']);
+                return;
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'User is already at the highest role level']);
+            return;
+        }
+        
+        if (!$newRole) {
+            echo json_encode(['success' => false, 'message' => 'Insufficient permissions to promote this user']);
+            return;
+        }
+        
+        // Update user role
+        $stmt = $pdo->prepare("UPDATE users SET role = ? WHERE id = ?");
+        $stmt->execute([$newRole, $userId]);
+        
+        logActivity("User {$user['username']} promoted from {$currentRole} to {$newRole} by {$currentUser['username']}");
+        
+        echo json_encode([
+            'success' => true,
+            'message' => "User '{$user['username']}' promoted from {$currentRole} to {$newRole}"
+        ]);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    }
+}
+
+function demoteUser($userId, $currentUser) {
+    global $pdo;
+    
+    try {
+        // Get target user info
+        $user = fetchRow("SELECT username, role FROM users WHERE id = ? AND is_active = 1", [$userId]);
+        if (!$user) {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            return;
+        }
+        
+        // Prevent self-demotion
+        if ($userId == $currentUser['id']) {
+            echo json_encode(['success' => false, 'message' => 'You cannot demote yourself']);
+            return;
+        }
+        
+        // Determine new role based on current role and user permissions
+        $newRole = null;
+        $currentRole = $user['role'];
+        
+        if ($currentRole === 'owner') {
+            // Owners can only be demoted by other owners
+            if ($currentUser['role'] === 'owner') {
+                $newRole = 'admin';
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Only owners can demote other owners']);
+                return;
+            }
+        } elseif ($currentRole === 'admin') {
+            // Admins can be demoted by owners or other admins
+            if ($currentUser['role'] === 'admin' || $currentUser['role'] === 'owner') {
+                $newRole = 'user';
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'User is already at the lowest role level']);
+            return;
+        }
+        
+        if (!$newRole) {
+            echo json_encode(['success' => false, 'message' => 'Insufficient permissions to demote this user']);
+            return;
+        }
+        
+        // Update user role
+        $stmt = $pdo->prepare("UPDATE users SET role = ? WHERE id = ?");
+        $stmt->execute([$newRole, $userId]);
+        
+        logActivity("User {$user['username']} demoted from {$currentRole} to {$newRole} by {$currentUser['username']}");
+        
+        echo json_encode([
+            'success' => true,
+            'message' => "User '{$user['username']}' demoted from {$currentRole} to {$newRole}"
+        ]);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
     }
 }
 ?>

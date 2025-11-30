@@ -52,6 +52,14 @@ try {
             handleUpdateActivity();
             break;
             
+        case 'get_all_users':
+            handleGetAllUsers();
+            break;
+            
+        case 'check_new_dms':
+            handleCheckNewDMs();
+            break;
+            
         default:
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid action']);
@@ -422,6 +430,93 @@ function cleanupOldMessages() {
         } catch (Exception $e) {
             logActivity("Failed to cleanup old messages for channel $channel: " . $e->getMessage(), 'error');
         }
+    }
+}
+
+/**
+ * Get all users for offline messaging dropdown
+ */
+function handleGetAllUsers() {
+    global $currentUser;
+    
+    try {
+        $users = fetchAll("
+            SELECT id, username, role, last_active,
+                   CASE WHEN last_active > DATE_SUB(NOW(), INTERVAL 15 MINUTE) THEN 1 ELSE 0 END as is_online
+            FROM users
+            WHERE is_active = 1
+            AND id != ?
+            ORDER BY
+                is_online DESC,
+                CASE WHEN role = 'admin' THEN 0 ELSE 1 END,
+                username ASC
+        ", [$currentUser['id']]);
+        
+        // Format timestamps
+        foreach ($users as &$user) {
+            $user['last_active'] = date('c', strtotime($user['last_active']));
+            $user['is_online'] = (bool)$user['is_online'];
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'users' => $users
+        ]);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to fetch users']);
+    }
+}
+
+/**
+ * Check for new DMs for notification system
+ */
+function handleCheckNewDMs() {
+    global $currentUser;
+    
+    $lastCheck = $_GET['last_check'] ?? null;
+    
+    try {
+        $query = "
+            SELECT
+                m.id,
+                m.content,
+                m.created_at,
+                u.username as sender_name,
+                u.role as sender_role
+            FROM messages m
+            JOIN users u ON m.sender_id = u.id
+            WHERE m.receiver_id = ?
+            AND m.is_deleted = 0
+        ";
+        
+        $params = [$currentUser['id']];
+        
+        if ($lastCheck) {
+            $query .= " AND m.created_at > ?";
+            $params[] = date('Y-m-d H:i:s', strtotime($lastCheck));
+        } else {
+            // If no last check, only get messages from last 5 minutes to avoid spam
+            $query .= " AND m.created_at > DATE_SUB(NOW(), INTERVAL 5 MINUTE)";
+        }
+        
+        $query .= " ORDER BY m.created_at DESC LIMIT 10";
+        
+        $newDMs = fetchAll($query, $params);
+        
+        // Format timestamps
+        foreach ($newDMs as &$dm) {
+            $dm['created_at'] = date('c', strtotime($dm['created_at']));
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'new_dms' => $newDMs,
+            'count' => count($newDMs)
+        ]);
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => 'Failed to check for new DMs']);
     }
 }
 
