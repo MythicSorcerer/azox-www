@@ -4,9 +4,9 @@ Important updates for all Azox Network players regarding upcoming maintenance an
 
 ## Scheduled Maintenance
 
-**Date:** November 25, 2025
-**Time:** 3:00 AM - 6:00 AM PST
-**Duration:** Approximately 3 hours
+**Date:** November 25, 2025 - November 30, 2025
+**Time:** All day
+**Duration:** Approximately 5 hours
 
 ### What's Being Updated
 
