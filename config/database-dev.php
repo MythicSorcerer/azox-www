@@ -1,37 +1,13 @@
 <?php
 /**
- * Database Configuration with Environment Detection
- * Automatically switches between development and production configurations
+ * Development Database Configuration
+ * For local development environment
  */
 
-// Detect environment
-function isLocalDevelopment() {
-    // Check if running on localhost or local development server
-    $serverName = $_SERVER['SERVER_NAME'] ?? '';
-    $httpHost = $_SERVER['HTTP_HOST'] ?? '';
-    
-    return (
-        $serverName === 'localhost' ||
-        $httpHost === 'localhost:8000' ||
-        strpos($httpHost, '127.0.0.1') !== false ||
-        strpos($httpHost, 'localhost') !== false
-    );
-}
-
-// Use appropriate configuration based on environment
-if (isLocalDevelopment()) {
-    // Development configuration
-    $host = 'localhost';
-    $dbname = 'azox_network';
-    $username = 'root';
-    $password = '';
-} else {
-    // Production configuration
-    $host = 'localhost';
-    $dbname = 'azox_network';
-    $username = 'azox_user';
-    $password = 'Tomm38hcvwapZ0D1fYGq9N2EMq5BzWXXvu6SW2sd6Fc=';
-}
+$host = 'localhost';
+$dbname = 'azox_network';
+$username = 'root';
+$password = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
@@ -88,25 +64,5 @@ function logActivity($message, $level = 'info') {
 
 function sanitizeOutput($string) {
     return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
-}
-
-/**
- * Generate CSRF token
- * @return string CSRF token
- */
-function generateCSRFToken() {
-    if (!isset($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
-}
-
-/**
- * Verify CSRF token
- * @param string $token Token to verify
- * @return bool True if valid
- */
-function verifyCSRFToken($token) {
-    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 ?>
