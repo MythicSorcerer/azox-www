@@ -6,7 +6,7 @@ requireLogin();
 
 $currentUser = getCurrentUser();
 
-// Get available channels (for now, just general)
+// Get available channels
 $channels = [
     'general' => 'General Chat',
     'pvp' => 'PvP Discussion',
@@ -15,7 +15,16 @@ $channels = [
 ];
 
 $currentChannel = $_GET['channel'] ?? 'general';
-if (!isset($channels[$currentChannel])) {
+$dmUser = $_GET['dm'] ?? null;
+
+// If it's a DM, validate the user exists
+if ($dmUser) {
+    $dmUserData = fetchRow("SELECT id, username FROM users WHERE username = ? AND is_active = 1", [$dmUser]);
+    if (!$dmUserData) {
+        $dmUser = null;
+        $currentChannel = 'general';
+    }
+} elseif (!isset($channels[$currentChannel])) {
     $currentChannel = 'general';
 }
 
@@ -55,11 +64,24 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                 <h3>Channels</h3>
                 <div class="channel-list">
                     <?php foreach ($channels as $channelId => $channelName): ?>
-                        <a href="?channel=<?= $channelId ?>" 
-                           class="channel-item <?= $channelId === $currentChannel ? 'active' : '' ?>">
+                        <a href="?channel=<?= $channelId ?>"
+                           class="channel-item <?= $channelId === $currentChannel && !$dmUser ? 'active' : '' ?>">
                             # <?= sanitizeOutput($channelName) ?>
                         </a>
                     <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Direct Messages -->
+            <div class="chat-channels">
+                <h3>Direct Messages</h3>
+                <div class="channel-list" id="dmList">
+                    <?php if ($dmUser): ?>
+                        <a href="?dm=<?= urlencode($dmUser) ?>" class="channel-item active">
+                            @ <?= sanitizeOutput($dmUser) ?>
+                        </a>
+                    <?php endif; ?>
+                    <!-- DM list will be populated by JavaScript -->
                 </div>
             </div>
 
@@ -68,15 +90,20 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                 <h3>Online (<?= count($onlineUsers) ?>)</h3>
                 <div class="user-list" id="userList">
                     <?php foreach ($onlineUsers as $user): ?>
-                        <div class="user-item">
-                            <div class="user-status <?= (strtotime($user['last_active']) > time() - 300) ? 'online' : 'away' ?>"></div>
-                            <span class="user-name <?= $user['role'] === 'admin' ? 'admin' : '' ?>">
-                                <?= sanitizeOutput($user['username']) ?>
-                                <?php if ($user['role'] === 'admin'): ?>
-                                    <span style="color: var(--crimson); font-size: 10px;">●</span>
-                                <?php endif; ?>
-                            </span>
-                        </div>
+                        <?php if ($user['username'] !== $currentUser['username']): ?>
+                            <div class="user-item" data-username="<?= sanitizeOutput($user['username']) ?>">
+                                <div class="user-status <?= (strtotime($user['last_active']) > time() - 300) ? 'online' : 'away' ?>"></div>
+                                <span class="user-name <?= $user['role'] === 'admin' || $user['role'] === 'owner' ? 'admin' : '' ?>"
+                                      onclick="azoxChat.startDM('<?= sanitizeOutput($user['username']) ?>')"
+                                      style="cursor: pointer;"
+                                      title="Click to send direct message">
+                                    <?= sanitizeOutput($user['username']) ?>
+                                    <?php if ($user['role'] === 'admin' || $user['role'] === 'owner'): ?>
+                                        <span style="color: var(--crimson); font-size: 10px;">●</span>
+                                    <?php endif; ?>
+                                </span>
+                            </div>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -86,19 +113,35 @@ $pageTitle = "Chat — Azox — Trial by Fate";
         <div class="chat-main">
             <!-- Chat Header -->
             <div class="chat-header">
-                <h2># <?= sanitizeOutput($channels[$currentChannel]) ?></h2>
-                <div style="font-size: 14px; color: var(--text-dim);">
-                    <?= count($onlineUsers) ?> users online
-                </div>
+                <?php if ($dmUser): ?>
+                    <h2>@ <?= sanitizeOutput($dmUser) ?></h2>
+                    <div style="font-size: 14px; color: var(--text-dim);">
+                        Direct Message
+                        <?php if (isAdmin()): ?>
+                            <span style="color: var(--crimson); margin-left: 8px;">👁️ Admin View</span>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <h2># <?= sanitizeOutput($channels[$currentChannel]) ?></h2>
+                    <div style="font-size: 14px; color: var(--text-dim);">
+                        <?= count($onlineUsers) ?> users online
+                    </div>
+                <?php endif; ?>
             </div>
 
             <!-- Messages Area -->
             <div class="chat-messages" id="chatMessages">
                 <!-- Messages will be loaded here via JavaScript -->
-                <div style="text-align: center; padding: 40px; color: var(--text-dim);">
-                    <div style="font-size: 32px; margin-bottom: 16px;">💬</div>
-                    <p>Welcome to #<?= sanitizeOutput($channels[$currentChannel]) ?>!</p>
-                    <p style="font-size: 14px;">Loading recent messages...</p>
+                <div data-loading style="text-align: center; padding: 40px; color: var(--text-dim);">
+                    <?php if ($dmUser): ?>
+                        <div style="font-size: 32px; margin-bottom: 16px;">💬</div>
+                        <p>Direct message with <?= sanitizeOutput($dmUser) ?></p>
+                        <p style="font-size: 14px;">Loading recent messages...</p>
+                    <?php else: ?>
+                        <div style="font-size: 32px; margin-bottom: 16px;">💬</div>
+                        <p>Welcome to #<?= sanitizeOutput($channels[$currentChannel]) ?>!</p>
+                        <p style="font-size: 14px;">Loading recent messages...</p>
+                    <?php endif; ?>
                 </div>
             </div>
 
@@ -145,6 +188,7 @@ $pageTitle = "Chat — Azox — Trial by Fate";
         class AzoxChat {
             constructor() {
                 this.currentChannel = '<?= $currentChannel ?>';
+                this.dmUser = <?= $dmUser ? "'" . sanitizeOutput($dmUser) . "'" : 'null' ?>;
                 this.currentUser = {
                     id: <?= $currentUser['id'] ?>,
                     username: '<?= sanitizeOutput($currentUser['username']) ?>',
@@ -202,7 +246,14 @@ $pageTitle = "Chat — Azox — Trial by Fate";
 
             async loadMessages() {
                 try {
-                    const response = await fetch(`api.php?action=get_messages&channel=${this.currentChannel}&after=${this.lastMessageId}`);
+                    let url = `api.php?action=get_messages&after=${this.lastMessageId}`;
+                    if (this.dmUser) {
+                        url += `&dm_user=${encodeURIComponent(this.dmUser)}`;
+                    } else {
+                        url += `&channel=${this.currentChannel}`;
+                    }
+                    
+                    const response = await fetch(url);
                     const data = await response.json();
                     
                     if (data.success) {
@@ -231,7 +282,8 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                         },
                         body: JSON.stringify({
                             action: 'send_message',
-                            channel: this.currentChannel,
+                            channel: this.dmUser ? null : this.currentChannel,
+                            dm_user: this.dmUser,
                             content: content
                         })
                     });
@@ -401,16 +453,23 @@ $pageTitle = "Chat — Azox — Trial by Fate";
 
                 userList.innerHTML = '';
                 users.forEach(user => {
+                    // Skip current user
+                    if (user.username === this.currentUser.username) return;
+                    
                     const userEl = document.createElement('div');
                     userEl.className = 'user-item';
+                    userEl.dataset.username = user.username;
                     
                     const isRecent = new Date(user.last_active).getTime() > Date.now() - 300000; // 5 minutes
                     const statusClass = isRecent ? 'online' : 'away';
-                    const isAdmin = user.role === 'admin';
+                    const isAdmin = user.role === 'admin' || user.role === 'owner';
                     
                     userEl.innerHTML = `
                         <div class="user-status ${statusClass}"></div>
-                        <span class="user-name ${isAdmin ? 'admin' : ''}">
+                        <span class="user-name ${isAdmin ? 'admin' : ''}"
+                              onclick="azoxChat.startDM('${this.escapeHtml(user.username)}')"
+                              style="cursor: pointer;"
+                              title="Click to send direct message">
                             ${this.escapeHtml(user.username)}
                             ${isAdmin ? '<span style="color: var(--crimson); font-size: 10px;">●</span>' : ''}
                         </span>
@@ -419,11 +478,12 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                     userList.appendChild(userEl);
                 });
 
-                // Update header count
-                const header = document.querySelector('.chat-header h2');
-                if (header) {
-                    const channelName = header.textContent.split(' ')[1];
-                    header.nextElementSibling.textContent = `${users.length} users online`;
+                // Update header count (only if not in DM mode)
+                if (!this.dmUser) {
+                    const header = document.querySelector('.chat-header h2');
+                    if (header) {
+                        header.nextElementSibling.textContent = `${users.length} users online`;
+                    }
                 }
             }
 
@@ -479,6 +539,11 @@ $pageTitle = "Chat — Azox — Trial by Fate";
                 messageEl.addEventListener('mouseleave', () => {
                     deleteBtn.style.opacity = '0';
                 });
+            }
+
+            startDM(username) {
+                if (username === this.currentUser.username) return;
+                window.location.href = `?dm=${encodeURIComponent(username)}`;
             }
         }
 

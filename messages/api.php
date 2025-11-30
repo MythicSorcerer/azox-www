@@ -68,41 +68,105 @@ try {
 function handleGetMessages() {
     global $currentUser;
     
-    $channel = $_GET['channel'] ?? 'general';
+    $channel = $_GET['channel'] ?? null;
+    $dmUser = $_GET['dm_user'] ?? null;
     $after = (int)($_GET['after'] ?? 0);
     $limit = min(50, (int)($_GET['limit'] ?? 50));
     
-    // Validate channel
-    $validChannels = ['general', 'pvp', 'trading', 'help'];
-    if (!in_array($channel, $validChannels)) {
-        $channel = 'general';
+    if ($dmUser) {
+        // Handle direct messages
+        $dmUserData = fetchRow("SELECT id, username FROM users WHERE username = ? AND is_active = 1", [$dmUser]);
+        if (!$dmUserData) {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            return;
+        }
+        
+        // Check if current user can view these DMs (user is participant or admin)
+        $canView = ($currentUser['username'] === $dmUser) ||
+                   ($currentUser['role'] === 'admin' || $currentUser['role'] === 'owner');
+        
+        if (!$canView) {
+            // Get messages where current user is sender or receiver
+            $messages = fetchAll("
+                SELECT
+                    m.*,
+                    u.username as author_name,
+                    u.role as author_role
+                FROM messages m
+                JOIN users u ON m.sender_id = u.id
+                WHERE m.receiver_id IS NOT NULL
+                AND ((m.sender_id = ? AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = ?))
+                AND m.id > ?
+                AND m.is_deleted = 0
+                ORDER BY m.created_at ASC
+                LIMIT ?
+            ", [$currentUser['id'], $dmUserData['id'], $dmUserData['id'], $currentUser['id'], $after, $limit]);
+        } else {
+            // Admin view - can see all DMs involving this user
+            $messages = fetchAll("
+                SELECT
+                    m.*,
+                    u.username as author_name,
+                    u.role as author_role
+                FROM messages m
+                JOIN users u ON m.sender_id = u.id
+                WHERE m.receiver_id IS NOT NULL
+                AND (m.sender_id = ? OR m.receiver_id = ?)
+                AND m.id > ?
+                AND m.is_deleted = 0
+                ORDER BY m.created_at ASC
+                LIMIT ?
+            ", [$dmUserData['id'], $dmUserData['id'], $after, $limit]);
+        }
+        
+        // Format timestamps for JavaScript
+        foreach ($messages as &$message) {
+            $message['created_at'] = date('c', strtotime($message['created_at']));
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'messages' => $messages,
+            'dm_user' => $dmUser
+        ]);
+        
+    } else {
+        // Handle channel messages
+        $channel = $channel ?? 'general';
+        
+        // Validate channel
+        $validChannels = ['general', 'pvp', 'trading', 'help'];
+        if (!in_array($channel, $validChannels)) {
+            $channel = 'general';
+        }
+        
+        // Get messages
+        $messages = fetchAll("
+            SELECT
+                m.*,
+                u.username as author_name,
+                u.role as author_role
+            FROM messages m
+            JOIN users u ON m.sender_id = u.id
+            WHERE m.channel = ?
+            AND m.receiver_id IS NULL
+            AND m.id > ?
+            AND m.is_deleted = 0
+            ORDER BY m.created_at ASC
+            LIMIT ?
+        ", [$channel, $after, $limit]);
+        
+        // Format timestamps for JavaScript
+        foreach ($messages as &$message) {
+            $message['created_at'] = date('c', strtotime($message['created_at']));
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'messages' => $messages,
+            'channel' => $channel
+        ]);
     }
-    
-    // Get messages
-    $messages = fetchAll("
-        SELECT 
-            m.*,
-            u.username as author_name,
-            u.role as author_role
-        FROM messages m
-        JOIN users u ON m.sender_id = u.id
-        WHERE m.channel = ? 
-        AND m.id > ? 
-        AND m.is_deleted = 0
-        ORDER BY m.created_at ASC
-        LIMIT ?
-    ", [$channel, $after, $limit]);
-    
-    // Format timestamps for JavaScript
-    foreach ($messages as &$message) {
-        $message['created_at'] = date('c', strtotime($message['created_at']));
-    }
-    
-    echo json_encode([
-        'success' => true,
-        'messages' => $messages,
-        'channel' => $channel
-    ]);
 }
 
 /**
@@ -111,7 +175,8 @@ function handleGetMessages() {
 function handleSendMessage($input) {
     global $currentUser;
     
-    $channel = $input['channel'] ?? 'general';
+    $channel = $input['channel'] ?? null;
+    $dmUser = $input['dm_user'] ?? null;
     $content = trim($input['content'] ?? '');
     
     // Validate input
@@ -125,18 +190,11 @@ function handleSendMessage($input) {
         return;
     }
     
-    // Validate channel
-    $validChannels = ['general', 'pvp', 'trading', 'help'];
-    if (!in_array($channel, $validChannels)) {
-        echo json_encode(['success' => false, 'message' => 'Invalid channel']);
-        return;
-    }
-    
     // Rate limiting - max 10 messages per minute
     $recentMessages = fetchCount("
-        SELECT COUNT(*) 
-        FROM messages 
-        WHERE sender_id = ? 
+        SELECT COUNT(*)
+        FROM messages
+        WHERE sender_id = ?
         AND created_at > DATE_SUB(NOW(), INTERVAL 1 MINUTE)
     ", [$currentUser['id']]);
     
@@ -145,27 +203,75 @@ function handleSendMessage($input) {
         return;
     }
     
-    try {
-        // Insert message
-        $messageId = insertAndGetId("
-            INSERT INTO messages (sender_id, channel, content, message_type) 
-            VALUES (?, ?, ?, 'text')
-        ", [$currentUser['id'], $channel, $content]);
+    if ($dmUser) {
+        // Handle direct message
+        $dmUserData = fetchRow("SELECT id, username FROM users WHERE username = ? AND is_active = 1", [$dmUser]);
+        if (!$dmUserData) {
+            echo json_encode(['success' => false, 'message' => 'User not found']);
+            return;
+        }
         
-        // Update user activity
-        executeQuery("UPDATE users SET last_active = NOW() WHERE id = ?", [$currentUser['id']]);
+        if ($dmUserData['id'] == $currentUser['id']) {
+            echo json_encode(['success' => false, 'message' => 'Cannot send message to yourself']);
+            return;
+        }
         
-        logActivity("Message sent by {$currentUser['username']} in #{$channel}");
+        try {
+            // Insert direct message
+            $messageId = insertAndGetId("
+                INSERT INTO messages (sender_id, receiver_id, content, message_type)
+                VALUES (?, ?, ?, 'text')
+            ", [$currentUser['id'], $dmUserData['id'], $content]);
+            
+            // Update user activity
+            executeQuery("UPDATE users SET last_active = NOW() WHERE id = ?", [$currentUser['id']]);
+            
+            logActivity("DM sent by {$currentUser['username']} to {$dmUser}");
+            
+            echo json_encode([
+                'success' => true,
+                'message_id' => $messageId,
+                'message' => 'Direct message sent successfully'
+            ]);
+            
+        } catch (Exception $e) {
+            logActivity("Failed to send DM: " . $e->getMessage(), 'error');
+            echo json_encode(['success' => false, 'message' => 'Failed to send direct message']);
+        }
         
-        echo json_encode([
-            'success' => true,
-            'message_id' => $messageId,
-            'message' => 'Message sent successfully'
-        ]);
+    } else {
+        // Handle channel message
+        $channel = $channel ?? 'general';
         
-    } catch (Exception $e) {
-        logActivity("Failed to send message: " . $e->getMessage(), 'error');
-        echo json_encode(['success' => false, 'message' => 'Failed to send message']);
+        // Validate channel
+        $validChannels = ['general', 'pvp', 'trading', 'help'];
+        if (!in_array($channel, $validChannels)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid channel']);
+            return;
+        }
+        
+        try {
+            // Insert message
+            $messageId = insertAndGetId("
+                INSERT INTO messages (sender_id, channel, content, message_type)
+                VALUES (?, ?, ?, 'text')
+            ", [$currentUser['id'], $channel, $content]);
+            
+            // Update user activity
+            executeQuery("UPDATE users SET last_active = NOW() WHERE id = ?", [$currentUser['id']]);
+            
+            logActivity("Message sent by {$currentUser['username']} in #{$channel}");
+            
+            echo json_encode([
+                'success' => true,
+                'message_id' => $messageId,
+                'message' => 'Message sent successfully'
+            ]);
+            
+        } catch (Exception $e) {
+            logActivity("Failed to send message: " . $e->getMessage(), 'error');
+            echo json_encode(['success' => false, 'message' => 'Failed to send message']);
+        }
     }
 }
 
@@ -235,8 +341,10 @@ function handleDeleteMessage($input) {
             return;
         }
         
-        // Allow deletion if user owns the message or is admin
-        if ($message['sender_id'] != $currentUser['id'] && $currentUser['role'] !== 'admin') {
+        // Allow deletion if user owns the message or is admin/owner
+        if ($message['sender_id'] != $currentUser['id'] &&
+            $currentUser['role'] !== 'admin' &&
+            $currentUser['role'] !== 'owner') {
             echo json_encode(['success' => false, 'message' => 'You can only delete your own messages']);
             return;
         }

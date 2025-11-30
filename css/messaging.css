@@ -91,6 +91,20 @@
   border-radius: 6px;
   font-size: 13px;
   color: var(--text-dim);
+  transition: all .2s ease;
+}
+
+.user-item:hover {
+  background: rgba(255,255,255,.05);
+}
+
+.user-name[onclick] {
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.user-name[onclick]:hover {
+  color: var(--text);
 }
 
 .user-status {
@@ -131,6 +145,11 @@
   font-size: 18px;
   font-weight: 700;
   color: var(--text);
+}
+
+/* DM header styling */
+.chat-header h2[style*="@"] {
+  color: var(--crimson);
 }
 
 /* Messages area */
