@@ -98,73 +98,17 @@ require_once '../config/auth.php';
     <div class="hero-section">
       <div class="eyebrow"><span class="dot"></span>Interactive World</div>
       <h1>Server Map</h1>
-      <p>Explore the Azox Network world with our interactive BlueMap integration. View player locations, faction territories, and points of interest.</p>
+      <a href = "/map/web">Click Here for Fullscreen</a>
     </div>
 
     <div class="map-container">
-      <div class="map-overlay">
-        <h2>BlueMap Integration</h2>
-        <p>Interactive server map will be available here</p>
-        <p>Currently configured for Apache2 deployment</p>
-        <p><em>Map data updates every 5 minutes</em></p>
-      </div>
-      <iframe class="map-frame" src="about:blank" title="Server Map"></iframe>
-    </div>
-
-    <div class="map-info">
-      <div class="info-card">
-        <h3>Map Features</h3>
-        <ul>
-          <li><strong>Real-time Updates:</strong> Map refreshes every 5 minutes</li>
-          <li><strong>Player Tracking:</strong> See online players and their locations</li>
-          <li><strong>Faction Territories:</strong> View claimed lands and boundaries</li>
-          <li><strong>Points of Interest:</strong> Important locations and landmarks</li>
-          <li><strong>3D Rendering:</strong> Full 3D world visualization</li>
-          <li><strong>Day/Night Cycle:</strong> Matches server time</li>
-        </ul>
-      </div>
-
-      <div class="info-card">
-        <h3>Navigation Controls</h3>
-        <ul>
-          <li><strong>Mouse Drag:</strong> Pan around the map</li>
-          <li><strong>Mouse Wheel:</strong> Zoom in and out</li>
-          <li><strong>Right Click + Drag:</strong> Rotate view</li>
-          <li><strong>Double Click:</strong> Center on location</li>
-          <li><strong>Layer Toggle:</strong> Switch between surface and caves</li>
-          <li><strong>Search:</strong> Find specific coordinates or players</li>
-        </ul>
-      </div>
-
-      <div class="info-card">
-        <h3>Map Layers</h3>
-        <ul>
-          <li><strong>Surface:</strong> Overworld terrain and structures</li>
-          <li><strong>Caves:</strong> Underground cave systems</li>
-          <li><strong>Nether:</strong> Nether dimension (if enabled)</li>
-          <li><strong>End:</strong> End dimension (if enabled)</li>
-          <li><strong>Faction Claims:</strong> Territory boundaries</li>
-          <li><strong>Waypoints:</strong> Custom markers and locations</li>
-        </ul>
-      </div>
-
-      <div class="info-card">
-        <h3>Technical Info</h3>
-        <ul>
-          <li><strong>Powered by:</strong> BlueMap Plugin</li>
-          <li><strong>Update Frequency:</strong> Every 5 minutes</li>
-          <li><strong>Resolution:</strong> High-quality rendering</li>
-          <li><strong>Performance:</strong> Optimized for web browsers</li>
-          <li><strong>Mobile Support:</strong> Touch-friendly controls</li>
-          <li><strong>Integration:</strong> Apache2 reverse proxy</li>
-        </ul>
-      </div>
+      <iframe class="map-frame" src="/map/web/" title="Server Map"></iframe>
     </div>
 
     <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 8px; margin: 2rem 0; text-align: center;">
       <h3 style="color: var(--crimson); margin-bottom: 1rem;">Map Integration Status</h3>
-      <p>The BlueMap integration is configured and ready for deployment. The map will be served through Apache2 reverse proxy configuration, providing seamless access to the interactive world map.</p>
-      <p><strong>Note:</strong> Map functionality requires server deployment with BlueMap plugin installed and configured.</p>
+      <p>Map updates every 5 minutes, providing continuous live updates, loading everywhere players have been. Live data loaded from bluemap directly to apache2 for the best experience possible</p>
+      <p><strong>Note:</strong> If showing black screen, contact support at support@azox.net </p>
     </div>
   </main>
 
