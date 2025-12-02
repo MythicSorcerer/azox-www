@@ -22,17 +22,17 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Force all topbar content to be black */
+/* Force all topbar content to be white */
 .topbar *,
 .topbar a,
 .topbar span,
 .topbar div {
-  color: #0b0b0c !important;
+  color: #FFFFFF !important;
 }
 
 /* Topbar links should still be black but can have hover effects */
 .topbar a:hover {
-  color: #000 !important;
+  color: #FFFFFF !important;
   text-decoration: underline;
 }
 
