@@ -11,14 +11,14 @@ To join Azox Network:
 1. Open Minecraft Java Edition (version 1.20.1 or later)
 2. Click "Multiplayer" from the main menu
 3. Click "Add Server" or "Direct Connect"
-4. Enter the server IP: **play.azox.network**
+4. Enter the server IP: **play.azox.net**
 5. Click "Join Server" and start playing!
 
 For detailed instructions, visit our [Play Now](/play-now/) page.
 
 ### What Minecraft version do I need?
 
-Azox Network supports Minecraft Java Edition versions **1.20.1 to 1.21.3**. We recommend using the latest version for the best experience and access to all features.
+Azox Network supports Minecraft Java Edition versions **1.21.10+**. We unfortunately do not support any older versions in order to have all the latest features.
 
 Bedrock Edition is not currently supported, but we're working on cross-platform compatibility for future updates.
 
@@ -40,23 +40,18 @@ However, registering on our website gives you access to:
 Azox Network offers multiple exciting game modes:
 
 - **Survival:** Classic survival experience with enhanced features
-- **Creative:** Build without limits in our creative world
 - **PvP Arena:** Competitive player vs player combat
 - **Mini-Games:** Various fun mini-games and challenges
 - **Events:** Special seasonal events and tournaments
 
-Use `/server [mode]` to switch between different game modes.
+Simply head to any area and start playing
 
 ### How do I claim land and protect my builds?
 
-Land protection is easy with our claiming system:
-
-1. Use `/claim` to claim the area you're standing in
-2. Use `/trust [player]` to allow friends to build in your claim
-3. Use `/untrust [player]` to remove building permissions
-4. Use `/abandonclaim` to remove a claim you no longer need
-
-New players get 100 claim blocks to start, with more earned through playtime. Visit our [Claim Calculator](/tools/claim/) to plan your builds!
+As a pure SMP server, threre are no land claims, however, you can still protect your builds in a few ways:
+- Build traps, discouraging intruders
+- Build far away, so nobody will find your build
+- Forge alliances
 
 ### What are the server rules?
 
