@@ -98,11 +98,11 @@ require_once '../config/auth.php';
     <div class="hero-section">
       <div class="eyebrow"><span class="dot"></span>Interactive World</div>
       <h1>Server Map</h1>
-      <a href = "/map/web">Click Here for Fullscreen</a>
+      <a href = "/maps/">Click Here for Fullscreen</a>
     </div>
 
     <div class="map-container">
-      <iframe class="map-frame" src="/map/web/" title="Server Map"></iframe>
+      <iframe class="map-frame" src="/maps/" title="Server Map"></iframe>
     </div>
 
     <div style="background: rgba(255, 255, 255, 0.05); padding: 2rem; border-radius: 8px; margin: 2rem 0; text-align: center;">
