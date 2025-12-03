@@ -4,9 +4,9 @@ Important updates for all Azox Network players regarding upcoming maintenance an
 
 ## Scheduled Maintenance
 
-**Date:** November 25, 2025 - November 30, 2025
-**Time:** All day
-**Duration:** Approximately 5 hours
+**Date:** November 25, 2025 - ~January 30, 2025
+**Time:** Full time
+**Duration:** Several months
 
 ### What's Being Updated
 
@@ -23,9 +23,9 @@ During maintenance, the server will be completely offline. All progress will be 
 
 We're excited to announce that the Azox Network has reached some incredible milestones:
 
-* **5,000 Active Players** - Our community continues to grow!
-* **1 Million PvP Battles** - The arena runs red with glory
-* **500 Active Factions** - Alliances and rivalries shape our world
+* **0 Active Players** - Our community continues to grow!
+* **0 Million PvP Battles** - The arena runs green with no blood
+* **0 Active Factions** - Alliances and rivalries shape our world
 
 ## New Community Features
 
