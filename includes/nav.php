@@ -92,7 +92,7 @@ if (!function_exists('getActiveClass')) {
             <a href="/index.php" <?= getActiveClass('index') ?>>Home</a>
             <a href="/news/" <?= getActiveClass('', 'news') ?>>News</a>
             <a href="/events/" <?= getActiveClass('', 'events') ?>>Events</a>
-            <a href="/map/" <?= getActiveClass('', 'map') ?>>Map</a>
+            <a href="/maps/" <?= getActiveClass('', 'maps') ?>>Map</a>
             <a href="/faq/" <?= getActiveClass('', 'faq') ?>>FAQ</a>
             <a href="/contact/" <?= getActiveClass('', 'contact') ?>>Contact</a>
             <a href="/rules/" <?= getActiveClass('', 'rules') ?>>Rules</a>
