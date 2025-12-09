@@ -1,0 +1,603 @@
+/* ===================================
+   MESSAGING STYLES
+   Used by: messaging/index.php
+   =================================== */
+/* Chat container */
+.chat-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  height: calc(100vh - 140px);
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 20px;
+}
+
+/* Chat sidebar */
+.chat-sidebar {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+}
+
+.chat-channels {
+  margin-bottom: 24px;
+}
+
+.chat-channels h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.channel-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.channel-item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all .2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.channel-item:hover,
+.channel-item.active {
+  background: rgba(255,255,255,.08);
+  color: var(--text);
+}
+
+.channel-item.active {
+  background: rgba(220,20,60,.15);
+  color: var(--crimson);
+}
+
+/* Online users */
+.online-users h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+  transition: all .2s ease;
+}
+
+.user-item:hover {
+  background: rgba(255,255,255,.05);
+}
+
+.user-name[onclick] {
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.user-name[onclick]:hover {
+  color: var(--text);
+}
+
+.user-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4CAF50;
+}
+
+.user-status.away {
+  background: #FF9800;
+}
+
+.user-status.offline {
+  background: #6c757d;
+}
+
+/* Chat main area */
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(8px);
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.02);
+}
+
+.chat-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* DM header styling */
+.chat-header h2[style*="@"] {
+  color: var(--crimson);
+}
+
+/* Messages area */
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--ring);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #0b0b0c;
+  flex-shrink: 0;
+}
+
+.message-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.message-author {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.message-time {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.message-text {
+  color: var(--text-dim);
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* System messages */
+.message.system {
+  justify-content: center;
+}
+
+.message.system .message-content {
+  text-align: center;
+  font-style: italic;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* Chat input */
+.chat-input {
+  padding: 16px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.02);
+}
+
+.chat-input-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.chat-input-field {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.3);
+  color: var(--text);
+  font-size: 14px;
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+}
+
+.chat-input-field:focus {
+  outline: none;
+  border-color: var(--crimson);
+  box-shadow: 0 0 0 3px rgba(220,20,60,.1);
+}
+
+.chat-send-btn {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--crimson);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+
+.chat-send-btn:hover {
+  background: var(--crimson-2);
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Typing indicator */
+.typing-indicator {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.02);
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+/* Message delete buttons */
+.message-delete-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 8px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.message-delete-btn:hover {
+  color: var(--crimson);
+  background: rgba(220,20,60,0.1);
+}
+
+/* Show delete button on message hover */
+.message:hover .message-delete-btn {
+  opacity: 1;
+}
+
+/* Legacy selectors for backwards compatibility */
+.message .delete-btn {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.message:hover .delete-btn {
+  opacity: 1;
+}
+
+/* Alternative selector for message delete buttons if they use different class */
+.message button[style*="crimson"],
+.message a[style*="crimson"] {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.message:hover button[style*="crimson"],
+.message:hover a[style*="crimson"] {
+  opacity: 1;
+}
+
+/* ===================================
+   DM NOTIFICATION STYLES
+   =================================== */
+
+/* Notification container */
+.dm-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.95);
+  border: 1px solid var(--crimson);
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 350px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(16px);
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dm-notification:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.dm-notification-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.dm-notification-icon {
+  font-size: 16px;
+}
+
+.dm-notification-title {
+  font-weight: 600;
+  color: var(--crimson);
+  font-size: 14px;
+}
+
+.dm-notification-sender {
+  font-weight: 500;
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.dm-notification-content {
+  color: var(--text-dim);
+  font-size: 12px;
+  line-height: 1.4;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dm-notification-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.dm-notification-close:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* ===================================
+   OFFLINE USER MESSAGING STYLES
+   =================================== */
+
+/* User selector dropdown */
+.user-selector {
+  margin-bottom: 16px;
+}
+
+.user-selector-header {
+  margin-bottom: 4px;
+}
+
+.user-selector-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.user-selector-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0;
+  margin-top: 4px;
+  width: 100%;
+  text-align: left;
+}
+
+.user-selector:hover .user-selector-toggle {
+  opacity: 1;
+}
+
+.user-selector-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.user-selector-toggle:active {
+  background: var(--crimson);
+  color: white;
+  border-color: var(--crimson);
+}
+
+.user-selector-dropdown {
+  position: relative;
+  display: none;
+}
+
+.user-selector-dropdown.active {
+  display: block;
+}
+
+.user-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.user-search:focus {
+  outline: none;
+  border-color: var(--crimson);
+  box-shadow: 0 0 0 2px rgba(220, 20, 60, 0.1);
+}
+
+.user-dropdown-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.user-dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.user-dropdown-item.selected {
+  background: rgba(220, 20, 60, 0.15);
+  color: var(--crimson);
+}
+
+.user-dropdown-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6c757d;
+  flex-shrink: 0;
+}
+
+.user-dropdown-status.online {
+  background: #4CAF50;
+}
+
+.user-dropdown-name {
+  font-size: 13px;
+  flex: 1;
+}
+
+.user-dropdown-name.admin {
+  color: var(--crimson);
+}
+
+.user-dropdown-role {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Empty state */
+.user-dropdown-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dm-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+  
+  .user-selector-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    margin-top: 4px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  }
+}

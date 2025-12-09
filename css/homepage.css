@@ -1,0 +1,172 @@
+/* ===================================
+   HOMEPAGE STYLES
+   Used by: index.html, index.php
+   =================================== */
+/* Typography */
+h1.hero-title{
+  margin: 10px 0 10px;
+  font-size: clamp(48px, 8vw, 88px);
+  line-height: .95;
+  letter-spacing: .02em;
+  font-weight: 900;
+  text-shadow: 0 8px 30px rgba(0,0,0,.5);
+}
+
+.hero-sub{
+  font-size: clamp(16px, 2.4vw, 20px);
+  color: var(--text-dim);
+  max-width: 70ch;
+}
+
+.eyebrow{
+  display:inline-flex; 
+  align-items:center; 
+  gap:10px;
+  font-size: 12px; 
+  letter-spacing:.16em; 
+  text-transform:uppercase;
+  color: var(--text-dim);
+}
+
+.eyebrow .dot{ 
+  width:6px; 
+  height:6px; 
+  border-radius:999px; 
+  background: var(--crimson); 
+  box-shadow: 0 0 0 6px rgba(220,20,60,.12); 
+}
+
+/* Hero section */
+.hero{
+  position: relative;
+  display:flex; 
+  align-items:center;
+  min-height: min(92vh, 920px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  overflow:hidden;
+  isolation:isolate;
+}
+
+.hero::before{
+  content:""; 
+  position:absolute; 
+  inset:-2px;
+  background:
+    radial-gradient(600px 400px at 20% 20%, rgba(220,20,60,.22), transparent 60%),
+    radial-gradient(800px 500px at 85% 30%, rgba(136,0,0,.18), transparent 70%);
+  z-index: -2;
+  filter: blur(2px);
+}
+
+.hero::after{
+  content:""; 
+  position:absolute; 
+  inset:0;
+  background:
+    linear-gradient(180deg, transparent, rgba(0,0,0,.25) 55%, rgba(0,0,0,.5));
+  z-index:-1;
+}
+
+.hero-inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 20px 48px;
+  width:100%;
+  display:grid;
+  grid-template-columns: 1.2fr .8fr;
+  grid-template-rows: auto auto;
+  gap: 42px;
+  grid-template-areas:
+    "content ip-card"
+    "blurbs blurbs";
+}
+
+.hero-content{
+  grid-area: content;
+}
+
+.hero-actions{
+  display:flex; 
+  gap: 14px; 
+  margin-top: 22px; 
+  flex-wrap: wrap;
+}
+
+/* Server IP Card */
+.ip-card{
+  grid-area: ip-card;
+  align-self: start;
+  background: rgba(255,255,255,.03);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: var(--shadow-md);
+  padding: 18px;
+  display:flex; 
+  flex-direction: column; 
+  gap: 14px;
+  backdrop-filter: blur(8px);
+}
+
+.ip-card .title{
+  font-weight: 800; 
+  letter-spacing:.12em; 
+  text-transform: uppercase; 
+  font-size: 12px; 
+  color: var(--text-dim);
+}
+
+.ip-input{
+  display:flex; 
+  gap: 10px; 
+  align-items:center;
+  background: #0e0f11;
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+.ip-input input{
+  flex:1;
+  background: transparent !important;
+  border: 0 !important;
+  outline: none;
+  color: var(--text) !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 16px;
+  letter-spacing:.04em;
+}
+
+.ip-note{
+  font-size: 12px; 
+  color: var(--text-dim);
+}
+
+/* Feature blurbs */
+.blurb-row{
+  grid-area: blurbs;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 0;
+}
+
+.blurb{
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  padding: 14px;
+  color: var(--text-dim);
+  box-shadow: var(--shadow-sm);
+  min-height: 92px;
+  overflow: hidden;
+  word-wrap: break-word;
+  hyphens: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.blurb b{
+  color: var(--text);
+}

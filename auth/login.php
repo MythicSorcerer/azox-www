@@ -10,7 +10,7 @@ if (isLoggedIn()) {
 
 $error = '';
 $success = '';
- 
+
 // Handle login form submission
 if ($_POST && isset($_POST['login'])) {
     if (!verifyCSRFToken($_POST['csrf_token'] ?? '')) {
