@@ -6,7 +6,7 @@ Need help, have questions, or want to connect with the Azox Network community? W
 
 Join our active Discord community for real-time support, discussions, and updates!
 
-**Discord Server:** [discord.gg/azox](https://discord.gg/azox)
+**Discord Server:** [https://discord.gg/WvVmQYT4cb](https://discord.gg/WvVmQYT4cb)
 
 ### What you'll find on Discord:
 * **#general-chat** - Community discussions and casual conversation
@@ -88,7 +88,7 @@ Use the `/report <player> <reason>` command in-game or contact staff on Discord 
 Send a detailed email to support@azox.net with your username, ban reason, and explanation.
 
 ### How do I join the Discord server?
-Click the invite link: [discord.gg/azox](https://discord.gg/azox) or ask for an invite in-game.
+Click the invite link: [https://discord.gg/WvVmQYT4cb](https://discord.gg/WvVmQYT4cb) or ask for an invite in-game.
 
 ### How do I reset my password?
 Contact support@azox.net with your username and registered email address.

@@ -96,7 +96,6 @@ if (!function_exists('getActiveClass')) {
             <a href="/faq/" <?= getActiveClass('', 'faq') ?>>FAQ</a>
             <a href="/contact/" <?= getActiveClass('', 'contact') ?>>Contact</a>
             <a href="/rules/" <?= getActiveClass('', 'rules') ?>>Rules</a>
-            <a href="/tools/" <?= getActiveClass('', 'tools') ?>>Tools</a>
             <a href="/forum/" <?= getActiveClass('', 'forum') ?>>Forum</a>
             <?php if ($currentUser): ?>
                 <a href="/messages/" <?= getActiveClass('', 'messages') ?>>Chat</a>
