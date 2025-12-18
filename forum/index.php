@@ -25,7 +25,7 @@ $pageTitle = "Forum — Azox — Trial by Fate";
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title><?= $pageTitle ?></title>
     <link rel="stylesheet" href="../style.css">
-    
+    <meta name="description" content="Join in the discussion with fellow players share and trade, all here right on the azox network"> 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">

@@ -16,7 +16,7 @@ if ($currentUser) {
     }
 }
 
-$pageTitle = "Account Settings — Azox — Trial by Fate";
+$pageTitle = "Account Settings | Azox Network";
 ?>
 <!doctype html>
 <html lang="en">
@@ -25,6 +25,7 @@ $pageTitle = "Account Settings — Azox — Trial by Fate";
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title><?= $pageTitle ?></title>
     <link rel="stylesheet" href="../style.css">
+    <meta name="description" content="Adjust your user settings for the azox network.">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">

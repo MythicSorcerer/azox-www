@@ -13,7 +13,8 @@ $newsArticles = getContentFiles('news', 'news');
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>News — Azox Network</title>
   <link rel="stylesheet" href="../style.css">
-  
+  <meta name="description" content="The latest updates right here on the azox network. Stay tuned for new events, tournaments and announcements. ">
+
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">

@@ -41,8 +41,9 @@ $csrfToken = generateCSRFToken();
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Login — Azox — Trial by Fate</title>
+    <title>Login | Azox Network</title>
     <link rel="stylesheet" href="../style.css">
+    <meta name="description" content="Login to the azox network">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">

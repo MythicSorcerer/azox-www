@@ -11,8 +11,9 @@ $eventsData = getContentFiles('events', 'events');
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Events — Azox Network</title>
+  <title>Events | Azox Network</title>
   <link rel="stylesheet" href="../style.css">
+  <meta name="description" content="Stay tuned for the latest events on the azox network. Tournaments, changes, new seasons, even special gamerules right here.">
 </head>
 <body>
   <?php require_once '../includes/nav.php'; ?>

@@ -7,10 +7,11 @@ require_once '../config/auth.php';
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Server Map — Azox Network</title>
+  <title>Server Map - Azox Network</title>
   <link rel="stylesheet" href="../style.css">
+  <meta name="description" content="A complete map of every inch of the world explored on the azox network.">  
   
-  <!-- Favicon -->
+   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">

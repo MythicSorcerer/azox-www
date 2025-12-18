@@ -11,7 +11,8 @@ $rulesArticles = getContentFiles('rules', 'rules');
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Rules — Azox — Trial by Fate</title>
+  <title>Rules | Azox Network</title>
+  <meta name="description" content="Stay up to date with essential rules and guidelines that ensure fair play and standards on the azox network.">
   <link rel="stylesheet" href="../style.css">
   
   <!-- Favicon -->

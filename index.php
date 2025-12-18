@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Azox — Trial by Fate</title>
+  <title>Azox Network</title>
   <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Where the greatest and mightiest minecraft players grind and thrive. Now with the spear.">
   
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">

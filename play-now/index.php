@@ -11,8 +11,9 @@ $playNowArticles = getContentFiles('play-now', 'play-now');
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Play Now — Azox — Trial by Fate</title>
+  <title>Play Now | Azox Network</title>
   <link rel="stylesheet" href="../style.css">
+  <meta name="description" content="A detailed guide on now to join the azox network and get started immediately">
   
   <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
