@@ -51,13 +51,13 @@ $csrfToken = generateCSRFToken();
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.svg">
 </head>
 <body>
-    <!-- Top bar -->
+    <!-- Top bar 
     <div class="topbar">
         <span>Season III:</span>
         <span class="pill">Always-on PvP</span>
         <span class="pill">Hard Mode</span>
         <span class="pill">No Safe Retreat</span>
-    </div>
+    </div> -->
 
     <!-- Main nav -->
     <header class="nav">

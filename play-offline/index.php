@@ -4,7 +4,7 @@ require_once '../config/auth.php';
 require_once '../includes/content.php';
 
 // Get play now guide from markdown files
-$playNowArticles = getContentFiles('play-now', 'play-now');
+$playNowArticles = getContentFiles('play-offline', 'play-offline');
 ?>
 <!doctype html>
 <html lang="en">

@@ -1,3 +1,8 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -19,12 +24,12 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-content">
-       <div class="eyebrow"><span class="dot"></span>Reckoning's edge</div>
-          <h1 class="hero-title">Trial by fate</h1>
-          <p class="hero-sub">Engage in escalating duels and survival gauntlets where every choice counts—and retreat is not an option.</p>
+       <div class="eyebrow"><span class="dot"></span>Server Info</div>
+          <h1 class="hero-title">Azox Network</h1>
+          <p class="hero-sub">The Azox Network is the most sophisticated minecraft SMP, allowing both premium and cracked players, backing up every 3 hours and allowing an extraordinarily expansive range of versions of minecraft, and more.</p>
           <div class="hero-actions">
           <a class="btn primary" href="play-now/index.php">Join the Server</a>
-          <a class="btn ghost" href="#news">News</a>
+          <a class="btn ghost" href="/news/">News</a>
         </div>
       </div>
 
@@ -38,9 +43,9 @@
       </aside>
 
       <div class="blurb-row">
-        <div class="blurb"><b>Survival of the Fittest:</b> Grind resources and gear, granting you the ability to attack and obliterate anyone with ease.</div>
-        <div class="blurb"><b>Alliance & Intrigue:</b> Forge unbreakable alliances, execute deadly betrayals, and manipulate the economy for power.</div>
-        <div class="blurb"><b>Advanced Anti-cheat:</b> The most advanced of anti-cheat technology, used here to eradicate hacking and ensure fair gameplay.</div>
+        <div class="blurb"><b>Survival of the Fittest:</b> Grind resources and gear to dominate the battlefield and obliterate anyone in your path. In this ruthless world, you snooze, you lose!</div>
+        <div class="blurb"><b>Alliance & Intrigue:</b> Forge powerful alliances, execute calculated betrayals, and manipulate the economy to seize control. Trust no one—anyone could be plotting against you.</div>
+        <div class="blurb"><b>Advanced Anti-cheat:</b> State-of-the-art anti-cheat technology eradicates hackers and ensures fair gameplay. With daily full server backups and world snapshots every 3 hours, we can instantly roll back any griefing or damage.</div>
       </div>
     </div>
   </section>

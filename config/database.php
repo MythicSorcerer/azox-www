@@ -30,7 +30,7 @@ if (isLocalDevelopment()) {
     $host = 'localhost';
     $dbname = 'azox_network';
     $username = 'azox_user';
-    $password = 'Tomm38hcvwapZ0D1fYGq9N2EMq5BzWXXvu6SW2sd6Fc=';
+    $password = 'ribNed-9gugmo-pejtav';
 }
 
 try {

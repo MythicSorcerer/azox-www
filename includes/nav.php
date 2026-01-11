@@ -90,16 +90,20 @@ if (!function_exists('getActiveClass')) {
         </div>
         <nav class="links" aria-label="Primary">
             <a href="/index.php" <?= getActiveClass('index') ?>>Home</a>
+            <a href="/about/" <?= getActiveClass('', 'about') ?>>About</a>
             <a href="/news/" <?= getActiveClass('', 'news') ?>>News</a>
             <a href="/events/" <?= getActiveClass('', 'events') ?>>Events</a>
             <a href="/map/" <?= getActiveClass('', 'map') ?>>Map</a>
-            <a href="/faq/" <?= getActiveClass('', 'faq') ?>>FAQ</a>
-            <a href="/contact/" <?= getActiveClass('', 'contact') ?>>Contact</a>
-            <a href="/rules/" <?= getActiveClass('', 'rules') ?>>Rules</a>
             <a href="/forum/" <?= getActiveClass('', 'forum') ?>>Forum</a>
             <?php if ($currentUser): ?>
                 <a href="/messages/" <?= getActiveClass('', 'messages') ?>>Chat</a>
             <?php endif; ?>
+            <a href="/rules/" <?= getActiveClass('', 'rules') ?>>Rules</a>
+            <a href="/faq/" <?= getActiveClass('', 'faq') ?>>FAQ</a>
+            <a href="/contact/" <?= getActiveClass('', 'contact') ?>>Contact</a>
+            
+            
+            
         </nav>
         <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu">
             <span></span>
